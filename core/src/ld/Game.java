@@ -4,18 +4,24 @@ import arc.*;
 import arc.graphics.*;
 import arc.graphics.g2d.*;
 import arc.scene.*;
+import ld.entity.*;
 import ld.ui.*;
 
 public class Game extends ApplicationCore{
     public static final int zoom = 3;
     public static final String about = "Made by [royal]Anuken[] for [yellow]LD46[].\nTools Used:\n";
     public static final boolean debug = true;
+    public static final float tsize = 12;
 
     public static BitmapFont font;
 
     public static Renderer renderer;
     public static UI ui;
     public static Control control;
+    public static World world;
+
+    public static Player player;
+    public static float speed = 3f;
 
     @Override
     public void setup(){
@@ -35,6 +41,8 @@ public class Game extends ApplicationCore{
         Tex.load();
         Core.scene.registerStyles(Styles.class);
         Core.input.addProcessor(Core.scene);
+
+        world = new World();
 
         add(control = new Control());
         add(renderer = new Renderer());

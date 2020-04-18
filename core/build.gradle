@@ -9,6 +9,6 @@ sourceSets.main.java.srcDirs = ["src/"]
 
 task pack{
 	doLast{
-		TexturePacker.process("core/assets-raw/sprites/", "core/assets/sprites/", "sprites.atlas")
+		TexturePacker.process("$project.rootDir/core/assets-raw/sprites/", "$project.rootDir/core/assets/sprites/", "sprites.atlas")
 	}
 }
