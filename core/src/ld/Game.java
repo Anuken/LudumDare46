@@ -12,6 +12,7 @@ public class Game extends ApplicationCore{
     public static final String about = "Made by [royal]Anuken[] for [yellow]LD46[].\nTools Used:\n";
     public static final boolean debug = true;
     public static final float tsize = 12;
+    public static final Color shadowColor = new Color(0, 0, 0, 0.2f);
 
     public static BitmapFont font;
 

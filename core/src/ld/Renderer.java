@@ -13,6 +13,7 @@ import static ld.Game.*;
 
 public class Renderer implements ApplicationListener{
     public FrameBuffer buffer = new FrameBuffer(2, 2);
+    public FrameBuffer shadows = new FrameBuffer(2, 2);
 
     @Override
     public void update(){
@@ -53,10 +54,18 @@ public class Renderer implements ApplicationListener{
         //tiles
         drawTiles();
 
+        shadows.begin();
+
         //TODO change order
         for(Entity e : control.entities){
             e.drawShadow();
         }
+
+        shadows.end();
+
+        Draw.color(shadowColor);
+        Draw.rect(shadows);
+        Draw.color();
 
         //entities
         for(Entity e : control.entities){
@@ -74,6 +83,8 @@ public class Renderer implements ApplicationListener{
     public void resize(int width, int height){
         Core.camera.resize(width / zoom, height / zoom);
         buffer.getTexture().setFilter(TextureFilter.Nearest);
+        shadows.getTexture().setFilter(TextureFilter.Nearest);
         buffer.resize(width / zoom, height / zoom);
+        shadows.resize(width / zoom, height / zoom);
     }
 }
