@@ -1,15 +1,39 @@
 package ld.entity;
 
 import arc.*;
-import arc.graphics.*;
 import arc.graphics.g2d.*;
+import arc.math.*;
 import arc.util.*;
+import ld.entity.Fx.*;
 import ld.gfx.*;
 
-import static ld.Game.renderer;
+import static ld.Game.*;
 
-public class Fire extends Entity{
-    public float heat;
+public class Fire extends SelectableEntity{
+    public float heat, smoothHeat;
+
+    @Override
+    public boolean clickable(){
+        return player.item != null && player.item.flammability > 0;
+    }
+
+    @Override
+    public void clicked(){
+        Fx.pickup.at(player);
+        Fx.itemMove.at(player.x, player.y + 6, 0, new ItemMove(this, player.item));
+        Time.run(Fx.pickup.lifetime*0.75f, () -> Fx.fireballs.at(this));
+        heat += player.item.flammability;
+        player.item = null;
+    }
+
+    @Override
+    public void update(){
+        super.update();
+
+        if(Mathf.chance(0.02 * Time.delta() * heat)){
+            Fx.spark.at(this);
+        }
+    }
 
     @Override
     public void draw(){
@@ -17,21 +41,21 @@ public class Fire extends Entity{
 
         Draw.rect("fire-base", x, y);
 
-        Draw.color(Color.red);
-        Fill.circle(x, y, 3f);
-        Draw.color();
-
         Draw.z(y - 1);
+        smoothHeat = Mathf.lerpDelta(smoothHeat, heat, 0.1f);
 
         renderer.drawNormal(() -> {
             Tmp.tr1.set(Core.atlas.texture());
 
-            float width = 100, height = 100;
+            float scale = smoothHeat;
+            float width = 100 * scale, height = 100 * scale;
 
             Draw.shader(Shaders.fire);
             Draw.rect(Tmp.tr1, x, y + height * 0.43f, width, -height);
             Draw.shader();
         });
+
+        Drawf.light(x, y, (150f + Mathf.absin(6f, 10f)) * smoothHeat, Pal.fire1, smoothHeat);
     }
 
     @Override

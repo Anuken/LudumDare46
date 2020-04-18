@@ -6,8 +6,16 @@ import arc.graphics.g2d.*;
 import arc.graphics.gl.*;
 import arc.util.*;
 
+import static ld.Game.renderer;
+
 public class Shaders{
     public static final OutlineShader outline = new OutlineShader();
+    public static final Shader light = new LoadShader("default2", "light"){
+        @Override
+        public void apply(){
+            setUniformf("u_ambient", renderer.ambient);
+        }
+    };
     public static final Shader fire = new LoadShader("defaultbatch", "fire"){
         @Override
         public void apply(){

@@ -3,6 +3,7 @@ package ld;
 import arc.*;
 import arc.func.*;
 import arc.input.*;
+import arc.math.*;
 import arc.math.geom.*;
 import arc.struct.*;
 import arc.util.*;
@@ -25,11 +26,12 @@ public class Control implements ApplicationListener{
         return Noise.nnoise(Time.time(), 0f, 50f, 1f);
     }
 
-    public @Nullable Entity closest(float x, float y, float radius, Boolf<Entity> test){
+    @SuppressWarnings("unchecked")
+    public @Nullable <T extends Entity> T closest(float x, float y, float radius, Boolf<Entity> test){
         out.clear();
         quadtree.getIntersect(out, Tmp.r1.setCentered(x, y, radius * 2f));
-        out.sort(e -> test.get(e) ? Float.POSITIVE_INFINITY : e.dst2(x, y));
-        return out.first() != null && test.get(out.first()) ? out.first() : null;
+        out.sort(e -> !test.get(e) ? Float.POSITIVE_INFINITY : e.dst2(x, y));
+        return out.any() && test.get(out.first()) ? (T)out.first() : null;
     }
 
     public Array<Entity> nearby(float x, float y, float radius){
@@ -60,6 +62,12 @@ public class Control implements ApplicationListener{
         fire.heat = 1f;
         fire.set(player.x, player.y);
         fire.add();
+
+        for(int i = 0; i < 30; i++){
+            ItemEntity item = new ItemEntity(Item.stick);
+            item.set(player.x + Mathf.range(100f), player.y + Mathf.range(100f));
+            item.add();
+        }
     }
 
     public void process(){

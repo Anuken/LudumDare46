@@ -4,7 +4,10 @@ import arc.*;
 import arc.graphics.g2d.*;
 
 public enum Item{
-    log;
+    log,
+    stick{{
+        flammability = 0.1f;
+    }};
 
     public TextureRegion region;
     public float flammability;

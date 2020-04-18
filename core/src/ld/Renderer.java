@@ -3,6 +3,7 @@ package ld;
 import arc.*;
 import arc.func.*;
 import arc.fx.*;
+import arc.fx.filters.*;
 import arc.graphics.*;
 import arc.graphics.Texture.*;
 import arc.graphics.g2d.*;
@@ -17,22 +18,22 @@ import static ld.Game.*;
 public class Renderer implements ApplicationListener{
     public FrameBuffer buffer = new FrameBuffer(2, 2);
     public FrameBuffer writeb = new FrameBuffer(2, 2);
-    public FrameBuffer writeb2 = new FrameBuffer(2, 2);
     public FrameBuffer effects = new FrameBuffer(2, 2);
+    public FrameBuffer lights = new FrameBuffer(2, 2);
     public FxProcessor fx = new FxProcessor();
     public Bloom bloom = new Bloom();
-
+    public Color ambient = Color.clear;//new Color(0, 0, 0, 0.8f);
 
     @Override
     public void init(){
-        /*
+
         fx.addEffect(new LevelsFilter(){
             @Override
             public void update(){
-                this.saturation = Mathf.absin(20f, 1f);
+                this.saturation = player.smoothHeat;
                 rebind();
             }
-        });*/
+        });
     }
 
     @Override
@@ -111,6 +112,11 @@ public class Renderer implements ApplicationListener{
     }
 
     void draw(){
+        //assign matrix to queue light batch - must be done before flush
+        Core.batch = qbatch;
+        Draw.proj(Core.camera);
+        Core.batch = sbatch;
+
         Drawf.sort(false);
         //tiles - floor
         drawTiles((x, y) -> {
@@ -120,7 +126,7 @@ public class Renderer implements ApplicationListener{
 
         //shadows
         effects.begin(Color.clear);
-        Drawf.sort(false); //shadows are unsuported.
+        Drawf.sort(false); //shadows are unsorted
 
         drawTiles((x, y) -> {
             Tile tile = world.tile(x, y);
@@ -148,11 +154,24 @@ public class Renderer implements ApplicationListener{
         //entities
         for(Entity e : control.entities){
             e.draw();
+            Draw.reset();
         }
 
         Drawf.sort(false);
 
         drawWeather();
+
+        Draw.color();
+
+        lights.begin(Color.clear);
+        qbatch.blend(Blending.additive);
+        qbatch.flush();
+        lights.end();
+
+        //draw lights on top
+        Draw.shader(Shaders.light);
+        Draw.rect(lights);
+        Draw.shader();
     }
 
     void drawWeather(){
@@ -170,10 +189,12 @@ public class Renderer implements ApplicationListener{
         buffer.resize(width, height);
         effects.resize(width, height);
         writeb.resize(width, height);
+        lights.resize(width, height);
         fx.resize(width, height);
         fx.setTextureFilter(TextureFilter.Nearest);
 
         bloom.dispose();
         bloom = new Bloom(width, height, true, true, true);
+        bloom.setClearColor(0, 0, 0, 0);
     }
 }

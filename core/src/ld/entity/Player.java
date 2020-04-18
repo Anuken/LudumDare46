@@ -1,6 +1,7 @@
 package ld.entity;
 
 import arc.*;
+import arc.graphics.*;
 import arc.graphics.g2d.*;
 import arc.math.*;
 import arc.math.geom.*;
@@ -14,12 +15,13 @@ import static ld.Game.*;
 public class Player extends Entity{
     static int index = 0;
     static final float blinkDuration = 5f;
+    static final float pickupRange = 50f;
 
-    public Dir facing = Dir.right;
+    public Dir dir = Dir.right;
     public Interval time = new Interval(4);
 
     public @Nullable Item item;
-    public float heat = 1f, moveTime;
+    public float heat = 1f, smoothHeat = heat, moveTime;
 
     Vec2 movement = new Vec2();
     float blinkTime;
@@ -44,13 +46,13 @@ public class Player extends Entity{
 
         //assign direction
         if(Tmp.v1.x > 0.0001f){
-            facing = Dir.right;
+            dir = Dir.right;
         }else if(Tmp.v1.x < -0.0001f){
-            facing = Dir.left;
+            dir = Dir.left;
         }else if(Tmp.v1.y < -0.0001f){
-            facing = Dir.down;
+            dir = Dir.down;
         }else if(Tmp.v1.y > 0.0001f){
-            facing = Dir.up;
+            dir = Dir.up;
         }
 
         //breath
@@ -75,7 +77,7 @@ public class Player extends Entity{
         //breathing
         if(time.get(1, 90f) && Mathf.chance(0.3)){
             float rand = 2f, scl = 4f;
-            Fx.breath.at(x + facing.direction.x*scl + Mathf.range(rand), y + facing.direction.y*scl + Mathf.range(rand) + 11f);
+            Fx.breath.at(x + dir.direction.x*scl + Mathf.range(rand), y + dir.direction.y*scl + Mathf.range(rand) + 11f);
         }
 
         movement.lerpDelta(Tmp.v1.nor(), 0.14f);
@@ -84,10 +86,29 @@ public class Player extends Entity{
         heat -= (1f + control.windStrength()) / heatDuration;
 
         //recharge of heat from nearby fires
-        Fire fire = (Fire)control.closest(x, y, 30f, e -> e instanceof Fire);
+        Fire fire = control.closest(x, y, 30f, e -> e instanceof Fire);
         if(fire != null){
             heat = 1f;//Math.max(heat, fire.heat);
         }
+
+        heat = Math.max(heat, 0f);
+        smoothHeat = Mathf.lerpDelta(smoothHeat, heat, 0.05f);
+
+        //pick up nearby objects
+        if(Core.input.keyTap(Bind.pickup)){
+            SelectableEntity item = hovered();
+            if(item != null){
+                item.clicked();
+            }
+        }
+    }
+
+    @Nullable SelectableEntity hovered(){
+        SelectableEntity entity = control.closest(Core.input.mouseWorld().x, Core.input.mouseWorld().y, 12f, e -> e instanceof SelectableEntity && ((SelectableEntity)e).clickable());
+        if(entity != null && !entity.within(player, pickupRange)){
+            return null;
+        }
+        return entity;
     }
 
     @Override
@@ -95,13 +116,25 @@ public class Player extends Entity{
         Draw.z(y);
 
         renderer.beginOutline();
-        drawDirection(facing);
+        drawDirection(dir);
         renderer.endOutline();
         Draw.reset();
 
-        if(item != null && facing != Dir.up){
+        if(item != null && dir != Dir.up){
             float offset = 1f;
-            Draw.rect(item.region, x + facing.direction.x * offset, y + 6f + facing.direction.y * offset);
+            Draw.rect(item.region, x + dir.direction.x * offset, y + 6f + dir.direction.y * offset);
+        }
+
+        //draw input
+        Draw.z(0);
+        SelectableEntity item = hovered();
+        if(item != null){
+            float rad = 6f + Mathf.absin(4f, 2f);
+
+            Lines.stroke(3f, Color.black);
+            Lines.circle(item.x, item.y, rad);
+            Lines.stroke(1f, Color.white);
+            Lines.circle(item.x, item.y, rad);
         }
     }
 
@@ -141,8 +174,24 @@ public class Player extends Entity{
         Draw.rect("hair-base" + facing.suffix, cx, cy, cw, ch);
 
         if(Core.atlas.isFound(eyes) && blinkTime <= 0f){
+            //position
+            Tmp.v2.set(x, y + 24);
+            Vec2 o = Tmp.v1.set(hovered() != null ? hovered() : Tmp.v2).sub(Tmp.v2).limit(1f);
+
+            if(dir.y){
+                if(Math.abs(o.y) > 0.3f){
+                    o.x = 0f;
+                }
+            }else{
+                //looking down sideways look strange
+                o.y = Math.max(o.y, 0f);
+            }
+
+            //looking up makes no sense in 3D space?
+            o.y = Math.min(o.y, 0f);
+
             Draw.color(0xff390dff);
-            Draw.rect(eyes, cx, cy, cw, ch);
+            Draw.rect(eyes, cx + o.x, cy + o.y, cw, ch);
         }
 
         Draw.reset();

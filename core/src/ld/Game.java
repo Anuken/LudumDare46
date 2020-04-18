@@ -20,6 +20,7 @@ public class Game extends ApplicationCore{
     public static BitmapFont font;
     public static SortedSpriteBatch sbatch;
     public static SpriteBatch defbatch;
+    public static QueueBatch qbatch;
 
     public static Renderer renderer;
     public static UI ui;
@@ -42,6 +43,7 @@ public class Game extends ApplicationCore{
         batch.flipZ = true;*/
 
         defbatch = new SpriteBatch();
+        qbatch = new QueueBatch();
 
         Core.camera = new Camera();
         Core.batch = sbatch = new SortedSpriteBatch();
