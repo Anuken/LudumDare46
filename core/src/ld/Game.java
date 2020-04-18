@@ -36,6 +36,8 @@ public class Game extends ApplicationCore{
         Core.keybinds.setDefaults(Bind.values());
         Core.settings.load();
 
+
+
         /*
         ZSpriteBatch batch = new ZSpriteBatch();
         batch.maxZ = 20f * 110f;

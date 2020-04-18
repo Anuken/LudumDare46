@@ -52,11 +52,13 @@ public class Control implements ApplicationListener{
         reset();
         state = State.playing;
 
-        world.resize(100, 100);
+        int size = 200;
+
+        world.resize(size, size);
         quadtree = new QuadTree<>(new Rect(0, 0, world.uwidth(), world.uheight()));
 
         player.add();
-        player.set(world.uwidth()/2f, world.uheight()/2f);
+        player.set(world.uwidth()/2f, world.uheight()/2f + 20f * 3);
 
         Fire fire = new Fire();
         fire.heat = 1f;

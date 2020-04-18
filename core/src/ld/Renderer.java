@@ -42,7 +42,7 @@ public class Renderer implements ApplicationListener{
         Gl.clear(Gl.depthBufferBit);
 
         Core.camera.position.set(player);
-        Core.camera.position.add(0, (float)(Core.graphics.getHeight() % zoom) / zoom);
+        Core.camera.position.add((float)(Core.graphics.getWidth() % zoom) / zoom, (float)(Core.graphics.getHeight() % zoom) / zoom);
 
         Core.camera.update();
         Draw.proj(Core.camera);
