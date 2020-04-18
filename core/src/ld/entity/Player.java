@@ -10,7 +10,7 @@ public class Player extends Entity{
 
     @Override
     public void drawShadow(){
-        Drawf.shadow(x, y, 8f);
+        Drawf.shadow(x, y + 1, 8f);
     }
 
     @Override

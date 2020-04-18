@@ -40,7 +40,7 @@ public class Game extends ApplicationCore{
         Core.scene = new Scene();
         Core.atlas.setDrawableScale(4f);
         Tex.load();
-        Core.scene.registerStyles(Styles.class);
+        Tex.register();
         Core.input.addProcessor(Core.scene);
 
         world = new World();

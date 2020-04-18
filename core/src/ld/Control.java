@@ -24,9 +24,10 @@ public class Control implements ApplicationListener{
     public void play(){
         reset();
         state = State.playing;
-        player.add();
 
         world.resize(100, 100);
+        player.add();
+        player.set(world.uwidth()/2f, world.uheight()/2f);
     }
 
     public void process(){

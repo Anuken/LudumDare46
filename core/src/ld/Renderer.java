@@ -1,6 +1,7 @@
 package ld;
 
 import arc.*;
+import arc.fx.*;
 import arc.graphics.*;
 import arc.graphics.Texture.*;
 import arc.graphics.g2d.*;
@@ -14,6 +15,19 @@ import static ld.Game.*;
 public class Renderer implements ApplicationListener{
     public FrameBuffer buffer = new FrameBuffer(2, 2);
     public FrameBuffer shadows = new FrameBuffer(2, 2);
+    public FxProcessor fx = new FxProcessor();
+
+    @Override
+    public void init(){
+        /*
+        fx.addEffect(new LevelsFilter(){
+            @Override
+            public void update(){
+                this.saturation = Mathf.absin(20f, 1f);
+                rebind();
+            }
+        });*/
+    }
 
     @Override
     public void update(){
@@ -30,7 +44,12 @@ public class Renderer implements ApplicationListener{
             draw();
             buffer.end();
 
+            fx.clear(Color.clear);
+            fx.begin();
             Draw.rect(buffer);
+            fx.end();
+            fx.applyEffects();
+            fx.render();
         }
 
         Draw.flush();
@@ -81,10 +100,15 @@ public class Renderer implements ApplicationListener{
 
     @Override
     public void resize(int width, int height){
-        Core.camera.resize(width / zoom, height / zoom);
+        width /= zoom;
+        height /= zoom;
+
+        Core.camera.resize(width, height);
         buffer.getTexture().setFilter(TextureFilter.Nearest);
         shadows.getTexture().setFilter(TextureFilter.Nearest);
-        buffer.resize(width / zoom, height / zoom);
-        shadows.resize(width / zoom, height / zoom);
+        buffer.resize(width, height);
+        shadows.resize(width, height);
+        fx.resize(width, height);
+        fx.setTextureFilter(TextureFilter.Nearest);
     }
 }

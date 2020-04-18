@@ -18,6 +18,13 @@ public class World{
         return Mathf.round(f / tsize);
     }
 
+    public float uwidth(){
+        return width * tsize;
+    }
+
+    public float uheight(){
+        return height * tsize;
+    }
 
     public void resize(int width, int height){
         tiles = new Tile[width * height];

@@ -30,8 +30,8 @@ task copyAssets(dependsOn: cleanTeavm){
 teavmc{
     mainClass = "ld.teavm.TeaVMLauncher"
     installDirectory = outputdir
-    obfuscate = true
-    incremental = false
+    obfuscate = false
+    incremental = true
 }
 
 teavmc.dependsOn(copyAssets)
