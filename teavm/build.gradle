@@ -1,0 +1,37 @@
+apply plugin: "anuke.teavm"
+
+sourceCompatibility = 1.8
+sourceSets.main.java.srcDirs = [ "src/" ]
+
+def outputdir = "${project.buildDir}/teavm"
+
+task cleanTeavm(){
+    doLast{
+        delete{
+            delete outputdir
+        }
+    }
+}
+
+task copyAssets(dependsOn: cleanTeavm){
+    doLast{
+        copy{
+            from "../core/assets"
+            into "$outputdir/assets"
+        }
+
+        copy{
+            from "webapp/"
+            into "$outputdir"
+        }
+    }
+}
+
+teavmc{
+    mainClass = "ld.teavm.TeaVMLauncher"
+    installDirectory = outputdir
+    obfuscate = true
+    incremental = false
+}
+
+teavmc.dependsOn(copyAssets)

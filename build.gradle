@@ -1,0 +1,76 @@
+buildscript{
+    repositories{
+        mavenLocal()
+        mavenCentral()
+        google()
+        maven{ url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        maven{ url "https://dl.bintray.com/konsoletyper/teavm" }
+        maven{ url "https://jitpack.io" }
+        jcenter()
+    }
+
+    dependencies{
+        classpath 'com.android.tools.build:gradle:3.3.1'
+        classpath "com.badlogicgames.gdx:gdx-tools:1.9.10"
+        classpath 'com.github.Anuken:teavm-gradle:74ed89b325'
+    }
+}
+
+allprojects{
+
+    version = '1.0'
+    ext{
+        appName = "ld"
+        gdxVersion = '1.9.10'
+
+        arcModule = { String name ->
+            return project(":Arc:$name")
+        }
+    }
+
+    repositories{
+        mavenLocal()
+        mavenCentral()
+        google()
+        jcenter()
+        maven{ url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        maven{ url "https://oss.sonatype.org/content/repositories/releases/" }
+        maven{ url 'https://jitpack.io' }
+    }
+}
+
+project(":desktop"){
+    apply plugin: "java"
+
+
+    dependencies{
+        compile project(":core")
+        compile "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+
+        compile arcModule("extensions:recorder")
+        compile arcModule("backends:backend-sdl")
+    }
+}
+
+project(":teavm"){
+    apply plugin: "java"
+
+    repositories{
+        maven{ url "https://dl.bintray.com/konsoletyper/teavm" }
+    }
+
+    dependencies{
+        compile project(":core")
+        compile arcModule("arc-core")
+        compile arcModule("backends:backend-teavm")
+    }
+}
+
+project(":core"){
+    apply plugin: "java"
+
+    dependencies{
+        compile arcModule("arc-core")
+        compile arcModule("extensions:vector")
+    }
+}

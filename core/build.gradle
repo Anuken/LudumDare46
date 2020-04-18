@@ -1,0 +1,14 @@
+apply plugin: "java"
+
+sourceCompatibility = 1.8
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+import com.badlogic.gdx.tools.texturepacker.TexturePacker
+
+sourceSets.main.java.srcDirs = ["src/"]
+
+task pack{
+	doLast{
+		TexturePacker.process("core/assets-raw/sprites/", "core/assets/sprites/", "sprites.atlas")
+	}
+}
