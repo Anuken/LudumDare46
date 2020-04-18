@@ -17,6 +17,7 @@ public class Game extends ApplicationCore{
     public static final float lFloor = 20f * 105f, lWeather = -20f;
 
     public static BitmapFont font;
+    public static SortedSpriteBatch sbatch;
 
     public static Renderer renderer;
     public static UI ui;

@@ -16,6 +16,13 @@ public class Fx{
         Draw.alpha(e.fout(Interpolation.slowFast));
         Draw.color(0xcbdbfcff);
         Fill.square(e.x, e.y, 1f);
+    }),
+
+    breath = new Effect(100f, e -> {
+        Draw.z(lFloor - 0.1f);
+        Draw.alpha(e.fout(Interpolation.slowFast));
+        Draw.color(0xcbdbfcff);
+        Fill.square(e.x, e.y, 1f);
     });
 
 }

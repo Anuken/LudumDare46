@@ -4,6 +4,9 @@ import arc.*;
 import arc.graphics.g2d.*;
 import arc.util.*;
 import ld.*;
+import ld.gfx.*;
+
+import static ld.Game.renderer;
 
 public class Player extends Entity{
     public Dir facing = Dir.right;
@@ -39,8 +42,10 @@ public class Player extends Entity{
 
     @Override
     public void draw(){
+        renderer.beginOutline();
         Draw.z(y);
         TextureRegion region = Core.atlas.find("player" + facing.suffix);
         Draw.rect(region, x, y + region.getHeight()/2f, region.getWidth() * (facing.flip ? -1 : 1), region.getHeight());
+        renderer.endOutline();
     }
 }
