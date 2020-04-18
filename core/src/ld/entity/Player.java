@@ -24,7 +24,9 @@ public class Player extends Entity{
     public float heat = 1f, smoothHeat = heat, moveTime;
 
     Vec2 movement = new Vec2();
+    boolean walking;
     float blinkTime;
+    int tracki;
 
     @Override
     public boolean solid(){
@@ -56,16 +58,17 @@ public class Player extends Entity{
         }
 
         //breath
-        if(time.get(0, 2f) && !Tmp.v1.isZero()){
-            float s = 1;
-            Fx.track.at(x - s, y);
-            Fx.track.at(x + s, y);
+        if(time.get(0, 5f) && !Tmp.v1.isZero()){
+            float s = 1.5f;
+            Fx.track.at(x - s * Mathf.sign((tracki++ % 2) - 0.5f), y);
         }
 
         //animation
         if(!Tmp.v1.isZero()){
             moveTime += Time.delta();
         }
+
+        walking = !Tmp.v1.isZero();
 
         //blinking
         blinkTime -= Time.delta();
@@ -138,12 +141,29 @@ public class Player extends Entity{
         }
     }
 
-    void drawDirection(Dir facing){
-        TextureRegion region = Core.atlas.find("player" + facing.suffix);
-        TextureRegion hair = Core.atlas.find("hair" + facing.suffix);
-        TextureRegion eyes = Core.atlas.find("eyes" + facing.suffix);
+    void drawDirection(Dir dir){
+        TextureRegion region = Core.atlas.find("player" + dir.suffix);
+        TextureRegion hair = Core.atlas.find("hair" + dir.suffix);
+        TextureRegion eyes = Core.atlas.find("eyes" + dir.suffix);
+        TextureRegion hands = Core.atlas.find("hands" + dir.suffix);
+        TextureRegion leg = Core.atlas.find("player-leg" + dir.suffix);
 
-        float cx = x, cy = y + region.getHeight()/2f, cw = region.getWidth() * (facing.flip ? -1 : 1), ch = region.getHeight();
+        float cx = x, cy = y + region.getHeight()/2f, cw = region.getWidth() * (dir.flip ? -1 : 1), ch = region.getHeight();
+
+        float amount = 2;
+        float mscl = 30f;
+        float base = (moveTime / mscl) % 1f;
+        base = 1f - Math.abs(base - 0.5f) * 2f;
+
+        float mov = walking ? base * amount - 0.25f : 0;
+        if(dir.y){
+            if(base < 0.5f || !walking) Draw.rect(leg, cx, cy);
+            if(base >= 0.5f || !walking) Draw.rect(leg, cx - 4f, cy);
+        }else{
+            Draw.rect(leg, cx - mov, cy);
+            Draw.rect(leg, cx - 4f + mov, cy);
+        }
+
         Runnable drawHair = () -> {
             Draw.rect(hair, cx, cy, cw, ch);
 
@@ -152,7 +172,7 @@ public class Player extends Entity{
             Draw.rectv(hair, cx, cy, cw, ch, v -> {
                 float scl = 7f + index%2, mag = 2f, movescl = -2.6f;
 
-                if((!facing.y && (index == 0 || index == 1)) || (facing.y && (index == 0 || index == 3))){
+                if((!dir.y && (index == 0 || index == 1)) || (dir.y && (index == 0 || index == 3))){
                     v.add(Mathf.sin(index*5.7f + control.windTime, scl, mag) + movement.x * movescl,
                     Mathf.sin(index*7 - control.windTime - 5, scl*2f, mag) + movement.y * movescl);
                 }
@@ -161,30 +181,45 @@ public class Player extends Entity{
             });
         };
 
-        if(facing == Dir.down){
+        if(dir == Dir.down){
             drawHair.run();
         }
 
         Draw.rect(region, cx, cy, cw, ch);
 
-        if(facing != Dir.down){
+        if(dir != Dir.up){
+            boolean cur = base < 0.5f;
+            int scl = Mathf.num(walking) * (dir.y ? 1 : Mathf.sign(dir.direction.x));
+            if(!dir.y){
+                Draw.rect(base <= 0.5 && walking ? Core.atlas.find("handsh") : hands, cx - Mathf.num(base <= 0.5)*scl, cy, cw, ch);
+                Draw.rect(hands, cx - 6 * dir.direction.x - Mathf.num(base >= 0.5)*scl, cy, cw, ch);
+            }else{
+                Draw.rect(hands, cx - Mathf.num(cur)*scl, cy, cw, ch);
+                Draw.rect(hands, cx - 7 + Mathf.num(!cur)*scl, cy, cw, ch);
+            }
+        }
+
+        if(dir != Dir.down){
             drawHair.run();
         }
 
-        Draw.rect("hair-base" + facing.suffix, cx, cy, cw, ch);
+        Draw.rect("hair-base" + dir.suffix, cx, cy, cw, ch);
 
         if(Core.atlas.isFound(eyes) && blinkTime <= 0f){
             //position
             Tmp.v2.set(x, y + 24);
             Vec2 o = Tmp.v1.set(hovered() != null ? hovered() : Tmp.v2).sub(Tmp.v2).limit(1f);
 
-            if(dir.y){
+            if(this.dir.y){
                 if(Math.abs(o.y) > 0.3f){
                     o.x = 0f;
                 }
             }else{
                 //looking down sideways look strange
                 o.y = Math.max(o.y, 0f);
+                if(Mathf.sign(o.x) == Mathf.sign(this.dir.direction.x)){
+                    o.x = 0f;
+                }
             }
 
             //looking up makes no sense in 3D space?

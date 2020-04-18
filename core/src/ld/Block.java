@@ -15,7 +15,11 @@ public enum Block{
     }},
     wall(false){{
         solid = true;
-    }};
+    }},
+    crate(false){{
+        solid = true;
+    }},
+    stonefloor;
 
     TextureRegion[] regions;
 

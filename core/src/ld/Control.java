@@ -57,6 +57,8 @@ public class Control implements ApplicationListener{
         world.resize(size, size);
         quadtree = new QuadTree<>(new Rect(0, 0, world.uwidth(), world.uheight()));
 
+        Geometry.circle(size/2, size/2, 10, (x, y) -> world.tile(x, y).wall = Block.none);
+
         player.add();
         player.set(world.uwidth()/2f, world.uheight()/2f + 20f * 3);
 
