@@ -13,7 +13,7 @@ import ld.entity.*;
 import static ld.Game.*;
 
 public class Renderer implements ApplicationListener{
-    public FrameBuffer buffer = new FrameBuffer(2, 2);
+    public FrameBuffer buffer = new FrameBuffer(2, 2, true);
     public FrameBuffer shadows = new FrameBuffer(2, 2);
     public FxProcessor fx = new FxProcessor();
 
@@ -32,6 +32,7 @@ public class Renderer implements ApplicationListener{
     @Override
     public void update(){
         Core.graphics.clear(Color.black);
+        Gl.clear(Gl.depthBufferBit);
 
         Core.camera.position.set(player);
         Core.camera.position.add(0, (float)(Core.graphics.getHeight() % zoom) / zoom);
@@ -52,6 +53,8 @@ public class Renderer implements ApplicationListener{
             fx.render();
         }
 
+        ScreenRecorder.record();
+
         Draw.flush();
     }
 
@@ -64,7 +67,8 @@ public class Renderer implements ApplicationListener{
         for(int x = x1; x <= x2; x++){
             for(int y = y1; y <= y2; y++){
                 Tile tile = world.tile(x, y);
-                tile.floor.draw(x, y, 0);
+                tile.floor.draw(x, y);
+                tile.wall.draw(x, y);
             }
         }
     }

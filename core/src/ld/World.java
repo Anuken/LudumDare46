@@ -4,7 +4,6 @@ import arc.func.*;
 import arc.math.*;
 import arc.util.ArcAnnotate.*;
 import arc.util.*;
-import ld.world.*;
 
 import static ld.Game.tsize;
 
@@ -33,6 +32,10 @@ public class World{
 
         for(int i = 0; i < tiles.length; i++){
             tiles[i] = new Tile();
+
+            if(Mathf.chance(0.1)){
+                tiles[i].wall = Block.wall;
+            }
         }
     }
 
@@ -53,7 +56,11 @@ public class World{
 
     public static class Tile{
         public Block floor = Block.ice;
-        public Block top = Block.none;
+        public Block wall = Block.none;
+
+        public boolean solid(){
+            return wall.solid;
+        }
 
         public boolean exists(){
             return this != none;

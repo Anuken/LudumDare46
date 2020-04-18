@@ -1,18 +1,31 @@
-package ld.world;
+package ld;
 
 import arc.*;
 import arc.graphics.g2d.*;
 import arc.math.*;
 import arc.util.*;
 
-import static ld.Game.tsize;
+import static ld.Game.*;
 
 public enum Block{
     none,
-    ice;
+    ice,
+    snow{{
+        trackable = true;
+    }},
+    wall(false){{
+        solid = true;
+    }};
 
     TextureRegion[] regions;
+
     public int height;
+    public boolean trackable, solid, floor = true;
+
+    Block(boolean floor){
+        this();
+        this.floor = floor;
+    }
 
     Block(){
         int found = 0;
@@ -36,10 +49,13 @@ public enum Block{
         }
     }
 
-    public void draw(int x, int y, float elevation){
+    public void draw(int x, int y){
         if(regions.length != 0){
+            Draw.z(floor ? lFloor : (y * tsize - tsize/2f));
+
             TextureRegion reg = regions[Mathf.randomSeed(Pack.longInt(x, y), 0, regions.length - 1)];
-            Draw.rect(reg, x * tsize, y * tsize + elevation + reg.getHeight()/2f);
+            float offset = floor ? 0f : -tsize/2f + reg.getHeight()/2f;
+            Draw.rect(reg, x * tsize, y * tsize + offset);
         }
     }
 }

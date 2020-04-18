@@ -11,8 +11,10 @@ public class Game extends ApplicationCore{
     public static final int zoom = 3;
     public static final String about = "Made by [royal]Anuken[] for [yellow]LD46[].\nTools Used:\n";
     public static final boolean debug = true;
-    public static final float tsize = 12;
+    public static final float tsize = 20;
     public static final Color shadowColor = new Color(0, 0, 0, 0.2f);
+
+    public static final float lFloor = 20f * 105f, lWeather = -20f;
 
     public static BitmapFont font;
 
@@ -30,8 +32,13 @@ public class Game extends ApplicationCore{
         Core.keybinds.setDefaults(Bind.values());
         Core.settings.load();
 
+        ZSpriteBatch batch = new ZSpriteBatch();
+        batch.maxZ = 20f * 110f;
+        batch.minZ = -40f;
+        batch.flipZ = true;
+
         Core.camera = new Camera();
-        Core.batch = new SpriteBatch();
+        Core.batch = batch;
         Core.atlas = new TextureAtlas("sprites/sprites.atlas");
 
         font = new BitmapFont(Core.files.internal("prose.fnt"));

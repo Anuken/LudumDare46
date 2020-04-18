@@ -15,14 +15,15 @@ public class Snow{
         rand.setSeed(0);
         float yspeed = 2f, xspeed = 0.25f;
         float padding = 5f;
-        float size = 10f;
+        float size = 8f;
         Core.camera.bounds(Tmp.r1);
         Tmp.r1.grow(padding);
 
+        Draw.z(lWeather);
         for(int i = 0; i < amount; i++){
             float scl = rand.random(0.5f, 1f);
             float scl2 = rand.random(0.5f, 1f);
-            float sscl = rand.random(0.2f, 1f);
+            float sscl = rand.random(0.4f, 1f);
             float x = (rand.random(0f, world.width * tsize) + Time.time() * xspeed * scl2);
             float y = (rand.random(0f, world.height * tsize) - Time.time() * yspeed * scl);
 

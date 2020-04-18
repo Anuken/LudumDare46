@@ -42,35 +42,35 @@ public class Effect{
     }
 
     public void at(Position pos){
-        create(this, pos.getX(), pos.getY(), 0, Color.white, null);
+        create(pos.getX(), pos.getY(), 0, Color.white, null);
     }
 
     public void at(Position pos, float rotation){
-        create(this, pos.getX(), pos.getY(), rotation, Color.white, null);
+        create(pos.getX(), pos.getY(), rotation, Color.white, null);
     }
 
     public void at(float x, float y){
-        create(this, x, y, 0, Color.white, null);
+        create(x, y, 0, Color.white, null);
     }
 
     public void at(float x, float y, float rotation){
-        create(this, x, y, rotation, Color.white, null);
+        create(x, y, rotation, Color.white, null);
     }
 
     public void at(float x, float y, float rotation, Color color){
-        create(this, x, y, rotation, color, null);
+        create(x, y, rotation, color, null);
     }
 
     public void at(float x, float y, Color color){
-        create(this, x, y, 0, color, null);
+        create(x, y, 0, color, null);
     }
 
     public void at(float x, float y, float rotation, Color color, Object data){
-        create(this, x, y, rotation, color, data);
+        create(x, y, rotation, color, data);
     }
 
     public void at(float x, float y, float rotation, Object data){
-        create(this, x, y, rotation, Color.white, data);
+        create(x, y, rotation, Color.white, data);
     }
 
     public void render(int id, Color color, float life, float rotation, float x, float y, Object data){
@@ -79,8 +79,8 @@ public class Effect{
         Draw.reset();
     }
     
-    private static void create(Effect effect, float x, float y, float rotation, Color color, Object data){
-        //TODO
+    private void create(float x, float y, float rotation, Color color, Object data){
+        new EffectEntity(this, x, y, rotation, color, data).add();
     }
 
     public static class EffectContainer implements Scaled{
