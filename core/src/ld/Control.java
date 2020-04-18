@@ -4,6 +4,7 @@ import arc.*;
 import arc.input.*;
 import arc.struct.*;
 import arc.util.*;
+import arc.util.noise.*;
 import ld.entity.*;
 
 import static ld.Game.*;
@@ -12,6 +13,12 @@ public class Control implements ApplicationListener{
     State state = State.menu;
 
     Array<Entity> entities = new Array<>(), removal = new Array<>(), addition = new Array<>();
+
+    public float windTime;
+
+    public float windStrength(){
+        return Noise.nnoise(Time.time(), 0f, 50f, 1f);
+    }
 
     public void reset(){
         state = State.menu;
@@ -65,6 +72,7 @@ public class Control implements ApplicationListener{
 
         if(state == State.playing){
             Time.update();
+            windTime += windStrength() * Time.delta();
 
             process();
         }

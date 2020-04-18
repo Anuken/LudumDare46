@@ -51,7 +51,7 @@ public enum Block{
 
     public void draw(int x, int y){
         if(regions.length != 0){
-            Draw.z(floor ? lFloor : (y * tsize - tsize/2f));
+            Draw.z(y * tsize - tsize/2f);
 
             TextureRegion reg = regions[Mathf.randomSeed(Pack.longInt(x, y), 0, regions.length - 1)];
             float offset = floor ? 0f : -tsize/2f + reg.getHeight()/2f;

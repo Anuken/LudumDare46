@@ -1,40 +1,110 @@
 
 sprites.png
-size: 128,128
+size: 256,128
 format: RGBA8888
 filter: Nearest,Nearest
 repeat: none
 ice
   rotate: false
-  xy: 1, 14
+  xy: 179, 107
   size: 20, 20
   orig: 20, 20
   offset: 0, 0
   index: -1
 snow
   rotate: false
-  xy: 29, 41
+  xy: 201, 107
   size: 20, 20
   orig: 20, 20
   offset: 0, 0
   index: -1
 wall
   rotate: false
-  xy: 67, 65
+  xy: 57, 25
   size: 20, 36
   orig: 20, 36
   offset: 0, 0
   index: -1
 wallshadow
   rotate: false
-  xy: 67, 103
+  xy: 151, 76
   size: 24, 24
   orig: 24, 24
   offset: 0, 0
   index: -1
-player
+eyes
   rotate: false
   xy: 1, 36
+  size: 26, 25
+  orig: 26, 25
+  offset: 0, 0
+  index: -1
+eyes-front
+  rotate: false
+  xy: 67, 102
+  size: 26, 25
+  orig: 26, 25
+  offset: 0, 0
+  index: -1
+hair
+  rotate: false
+  xy: 1, 9
+  size: 26, 25
+  orig: 26, 25
+  offset: 0, 0
+  index: -1
+hair-back
+  rotate: false
+  xy: 29, 36
+  size: 26, 25
+  orig: 26, 25
+  offset: 0, 0
+  index: -1
+hair-base
+  rotate: false
+  xy: 67, 75
+  size: 26, 25
+  orig: 26, 25
+  offset: 0, 0
+  index: -1
+hair-base-back
+  rotate: false
+  xy: 95, 102
+  size: 26, 25
+  orig: 26, 25
+  offset: 0, 0
+  index: -1
+hair-base-front
+  rotate: false
+  xy: 29, 9
+  size: 26, 25
+  orig: 26, 25
+  offset: 0, 0
+  index: -1
+hair-front
+  rotate: false
+  xy: 95, 75
+  size: 26, 25
+  orig: 26, 25
+  offset: 0, 0
+  index: -1
+player
+  rotate: false
+  xy: 123, 102
+  size: 26, 25
+  orig: 26, 25
+  offset: 0, 0
+  index: -1
+player-back
+  rotate: false
+  xy: 123, 75
+  size: 26, 25
+  orig: 26, 25
+  offset: 0, 0
+  index: -1
+player-front
+  rotate: false
+  xy: 151, 102
   size: 26, 25
   orig: 26, 25
   offset: 0, 0
@@ -48,21 +118,21 @@ circle
   index: -1
 error
   rotate: false
-  xy: 103, 119
+  xy: 67, 15
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
 blank
   rotate: false
-  xy: 61, 58
+  xy: 179, 102
   size: 3, 3
   orig: 3, 3
   offset: 0, 0
   index: -1
 border
   rotate: false
-  xy: 23, 28
+  xy: 10, 1
   size: 6, 6
   split: 1, 1, 1, 1
   orig: 6, 6
@@ -70,7 +140,7 @@ border
   index: -1
 button
   rotate: false
-  xy: 23, 16
+  xy: 79, 51
   size: 6, 10
   split: 2, 2, 2, 2
   orig: 6, 10
@@ -78,7 +148,7 @@ button
   index: -1
 button-down
   rotate: false
-  xy: 14, 2
+  xy: 77, 63
   size: 6, 10
   split: 2, 2, 2, 2
   orig: 6, 10
@@ -86,7 +156,7 @@ button-down
   index: -1
 button-over
   rotate: false
-  xy: 51, 41
+  xy: 85, 63
   size: 6, 10
   split: 2, 2, 2, 2
   orig: 6, 10
@@ -94,7 +164,7 @@ button-over
   index: -1
 check-off
   rotate: false
-  xy: 93, 119
+  xy: 57, 15
   size: 8, 8
   split: 1, 1, 1, 1
   orig: 8, 8
@@ -102,7 +172,7 @@ check-off
   index: -1
 check-on
   rotate: false
-  xy: 51, 53
+  xy: 67, 65
   size: 8, 8
   split: 1, 1, 1, 1
   orig: 8, 8
@@ -110,7 +180,7 @@ check-on
   index: -1
 check-over
   rotate: false
-  xy: 93, 109
+  xy: 236, 119
   size: 8, 8
   split: 1, 1, 1, 1
   orig: 8, 8
@@ -118,14 +188,14 @@ check-over
   index: -1
 cursor
   rotate: false
-  xy: 89, 99
+  xy: 223, 112
   size: 1, 2
   orig: 1, 2
   offset: 0, 0
   index: -1
 scroll
   rotate: false
-  xy: 103, 111
+  xy: 18, 1
   size: 6, 6
   split: 1, 0, 1, 1
   pad: -1, -1, 0, 0
@@ -134,56 +204,56 @@ scroll
   index: -1
 scroll-knob-vertical
   rotate: false
-  xy: 29, 36
+  xy: 1, 4
   size: 7, 3
   orig: 7, 3
   offset: 0, 0
   index: -1
 selection
   rotate: false
-  xy: 113, 126
+  xy: 1, 1
   size: 1, 1
   orig: 1, 1
   offset: 0, 0
   index: -1
 slider
   rotate: false
-  xy: 31, 20
+  xy: 57, 11
   size: 1, 2
   orig: 1, 2
   offset: 0, 0
   index: -1
 slider-knob
   rotate: false
-  xy: 31, 24
+  xy: 93, 63
   size: 5, 10
   orig: 5, 10
   offset: 0, 0
   index: -1
 slider-knob-down
   rotate: false
-  xy: 38, 29
+  xy: 79, 39
   size: 5, 10
   orig: 5, 10
   offset: 0, 0
   index: -1
 slider-knob-over
   rotate: false
-  xy: 38, 29
+  xy: 79, 39
   size: 5, 10
   orig: 5, 10
   offset: 0, 0
   index: -1
 white
   rotate: false
-  xy: 93, 104
+  xy: 177, 97
   size: 3, 3
   orig: 3, 3
   offset: 0, 0
   index: -1
 window
   rotate: false
-  xy: 1, 1
+  xy: 223, 116
   size: 11, 11
   split: 3, 3, 3, 3
   orig: 11, 11

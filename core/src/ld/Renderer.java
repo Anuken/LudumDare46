@@ -15,8 +15,9 @@ import ld.gfx.*;
 import static ld.Game.*;
 
 public class Renderer implements ApplicationListener{
-    public FrameBuffer buffer = new FrameBuffer(2, 2, true);
-    public FrameBuffer effects = new FrameBuffer(2, 2, true);
+    public FrameBuffer buffer = new FrameBuffer(2, 2);
+    public FrameBuffer writeb = new FrameBuffer(2, 2);
+    public FrameBuffer effects = new FrameBuffer(2, 2);
     public FxProcessor fx = new FxProcessor();
     public Bloom bloom = new Bloom();
 
@@ -63,6 +64,8 @@ public class Renderer implements ApplicationListener{
     }
 
     public void beginOutline(){
+        Core.batch = defbatch;
+        Draw.proj(Core.camera);
         effects.begin(Color.clear);
     }
 
@@ -71,9 +74,15 @@ public class Renderer implements ApplicationListener{
 
         Tmp.tr1.set(effects.getTexture());
         Shaders.outline.region = Tmp.tr1;
+
+        writeb.begin(Color.clear);
         Draw.shader(Shaders.outline);
         Draw.rect(effects);
         Draw.shader();
+        writeb.end();
+
+        Core.batch = sbatch;
+        Draw.rect(writeb);
     }
 
     void drawTiles(Intc2 drawer){
@@ -90,14 +99,16 @@ public class Renderer implements ApplicationListener{
     }
 
     void draw(){
-        //tiles
+        Drawf.sort(false);
+        //tiles - floor
         drawTiles((x, y) -> {
             Tile tile = world.tile(x, y);
             tile.floor.draw(x, y);
-            tile.wall.draw(x, y);
         });
 
+        //shadows
         effects.begin(Color.clear);
+        Drawf.sort(false); //shadows are unsuported.
 
         drawTiles((x, y) -> {
             Tile tile = world.tile(x, y);
@@ -106,21 +117,28 @@ public class Renderer implements ApplicationListener{
             }
         });
 
-        //TODO change order
         for(Entity e : control.entities){
             e.drawShadow();
         }
 
         effects.end();
-
         Draw.color(shadowColor);
         Draw.rect(effects);
         Draw.color();
+
+        Drawf.sort(true);
+
+        drawTiles((x, y) -> {
+            Tile tile = world.tile(x, y);
+            tile.wall.draw(x, y);
+        });
 
         //entities
         for(Entity e : control.entities){
             e.draw();
         }
+
+        Drawf.sort(false);
 
         drawWeather();
     }
@@ -139,6 +157,7 @@ public class Renderer implements ApplicationListener{
         effects.getTexture().setFilter(TextureFilter.Nearest);
         buffer.resize(width, height);
         effects.resize(width, height);
+        writeb.resize(width, height);
         fx.resize(width, height);
         fx.setTextureFilter(TextureFilter.Nearest);
 

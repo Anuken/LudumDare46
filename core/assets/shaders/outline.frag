@@ -18,11 +18,10 @@ bool exists(vec2 offset){
 
 void main(){
     vec4 c = texture2D(u_texture, v_texCoords);
+
     if(c.a < 0.01){
         if(exists(vec2(1.0, 0.0)) || exists(vec2(-1.0, 0.0)) || exists(vec2(0.0, 1.0)) || exists(vec2(0.0, -1.0))){
             gl_FragColor = u_outline;
-        }else{
-            discard;
         }
     }else{
         gl_FragColor = v_color * mix(c, vec4(v_mix_color.rgb, c.a), v_mix_color.a);

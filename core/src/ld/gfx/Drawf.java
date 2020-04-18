@@ -1,11 +1,12 @@
 package ld.gfx;
 
 import arc.graphics.g2d.*;
+import ld.*;
 
 public class Drawf{
 
     public static void sort(boolean sort){
-        //TODO
+        Game.sbatch.sort(sort);
     }
 
     public static void shadow(float x, float y, float size){

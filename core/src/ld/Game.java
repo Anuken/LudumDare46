@@ -15,9 +15,11 @@ public class Game extends ApplicationCore{
     public static final Color shadowColor = new Color(0, 0, 0, 0.2f);
 
     public static final float lFloor = 20f * 105f, lWeather = -20f;
+    public static final float heatDuration = 60 * 60 * 2;
 
     public static BitmapFont font;
     public static SortedSpriteBatch sbatch;
+    public static SpriteBatch defbatch;
 
     public static Renderer renderer;
     public static UI ui;
@@ -33,13 +35,16 @@ public class Game extends ApplicationCore{
         Core.keybinds.setDefaults(Bind.values());
         Core.settings.load();
 
+        /*
         ZSpriteBatch batch = new ZSpriteBatch();
         batch.maxZ = 20f * 110f;
         batch.minZ = -40f;
-        batch.flipZ = true;
+        batch.flipZ = true;*/
+
+        defbatch = new SpriteBatch();
 
         Core.camera = new Camera();
-        Core.batch = batch;
+        Core.batch = sbatch = new SortedSpriteBatch();
         Core.atlas = new TextureAtlas("sprites/sprites.atlas");
 
         font = new BitmapFont(Core.files.internal("prose.fnt"));
