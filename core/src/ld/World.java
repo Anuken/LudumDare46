@@ -34,7 +34,7 @@ public class World{
             tiles[i] = new Tile();
 
             if(Mathf.chance(0.1)){
-                tiles[i].wall = Block.wall;
+                //tiles[i].wall = Block.wall;
             }
         }
     }

@@ -8,6 +8,12 @@ import arc.util.*;
 
 public class Shaders{
     public static final OutlineShader outline = new OutlineShader();
+    public static final Shader fire = new LoadShader("defaultbatch", "fire"){
+        @Override
+        public void apply(){
+            setUniformf("u_time", Time.time() / 60f);
+        }
+    };
 
     public static class OutlineShader extends LoadShader{
         public TextureRegion region;

@@ -17,6 +17,7 @@ import static ld.Game.*;
 public class Renderer implements ApplicationListener{
     public FrameBuffer buffer = new FrameBuffer(2, 2);
     public FrameBuffer writeb = new FrameBuffer(2, 2);
+    public FrameBuffer writeb2 = new FrameBuffer(2, 2);
     public FrameBuffer effects = new FrameBuffer(2, 2);
     public FxProcessor fx = new FxProcessor();
     public Bloom bloom = new Bloom();
@@ -61,6 +62,17 @@ public class Renderer implements ApplicationListener{
         ScreenRecorder.record();
 
         Draw.flush();
+    }
+
+    public void drawNormal(Runnable run){
+        Core.batch = defbatch;
+        Draw.proj(Core.camera);
+        effects.begin(Color.clear);
+        run.run();
+        effects.end();
+
+        Core.batch = sbatch;
+        Draw.rect(effects);
     }
 
     public void beginOutline(){

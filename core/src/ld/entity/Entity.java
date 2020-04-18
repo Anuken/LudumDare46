@@ -1,11 +1,12 @@
 package ld.entity;
 
 import arc.math.geom.*;
+import arc.math.geom.QuadTree.*;
 import ld.World.*;
 
 import static ld.Game.*;
 
-public class Entity implements Position{
+public class Entity implements Position, QuadTreeObject{
     private static int lastID = 0;
 
     public final int id = lastID++;
@@ -16,8 +17,17 @@ public class Entity implements Position{
         return world.tile(world.t(x), world.t(y));
     }
 
+    public boolean solid(){
+        return false;
+    }
+
     public void move(float x, float y){
         Collisions.move(this, x, y);
+    }
+
+    public void hitbox(Rect rect){
+        float w = 8f, h = 8f;
+        rect.set(x - w/2f, y, w, h);
     }
 
     public Rect tileHit(Rect rect){
