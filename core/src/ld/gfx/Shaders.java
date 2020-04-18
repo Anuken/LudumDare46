@@ -17,9 +17,20 @@ public class Shaders{
         }
     };
     public static final Shader fire = new LoadShader("defaultbatch", "fire"){
+        float[] values = new float[3 * 3];
+        Color[] colors = {Pal.fire1, Pal.fire2, Pal.fire3};
+        {
+            for(int i = 0; i < colors.length; i++){
+                values[i*3] = colors[i].r;
+                values[i*3+1] = colors[i].g;
+                values[i*3+2] = colors[i].b;
+            }
+        }
+
         @Override
         public void apply(){
             setUniformf("u_time", Time.time() / 60f);
+            setUniform3fv("palette", values, 0, values.length);
         }
     };
 

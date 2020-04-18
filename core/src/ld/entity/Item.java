@@ -9,15 +9,17 @@ public enum Item{
         flammability = 0.1f;
     }};
 
-    public TextureRegion region;
     public float flammability;
 
     Item(float flammability){
-        region = Core.atlas.find(name());
         this.flammability = flammability;
     }
 
     Item(){
         this(0);
+    }
+
+    public TextureRegion region(){
+        return Core.atlas.find(name());
     }
 }

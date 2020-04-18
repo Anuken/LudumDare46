@@ -56,7 +56,7 @@ public class Fx{
         ItemMove item = e.data();
         Tmp.v1.set(e.x, e.y).lerp(item.target, e.fin(Interpolation.smooth));
         Draw.z(Tmp.v1.y - 8);
-        Draw.rect(item.item.region, Tmp.v1.x, Tmp.v1.y);
+        Draw.rect(item.item.region(), Tmp.v1.x, Tmp.v1.y);
     });
 
     public static class ItemMove{

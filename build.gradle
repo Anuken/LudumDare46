@@ -12,7 +12,7 @@ buildscript{
     dependencies{
         classpath 'com.android.tools.build:gradle:3.3.1'
         classpath "com.badlogicgames.gdx:gdx-tools:1.9.10"
-        classpath 'com.github.Anuken:teavm-gradle:74ed89b325'
+        classpath 'com.github.Anuken:teavm-gradle-plugin:e28fd8487c68d02b557c61fe05e5aeb592429f8a'
     }
 }
 

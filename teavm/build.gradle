@@ -1,7 +1,8 @@
-apply plugin: "anuke.teavm"
+apply plugin: "com.edibleday.teavm"
 
 sourceCompatibility = 1.8
 sourceSets.main.java.srcDirs = [ "src/" ]
+ext.mainClassName = "ld.teavm.TeaVMLauncher"
 
 def outputdir = "${project.buildDir}/teavm"
 
@@ -28,10 +29,10 @@ task copyAssets(dependsOn: cleanTeavm){
 }
 
 teavmc{
-    mainClass = "ld.teavm.TeaVMLauncher"
+
     installDirectory = outputdir
     obfuscate = false
-    incremental = true
+    incremental = false
 }
 
 teavmc.dependsOn(copyAssets)

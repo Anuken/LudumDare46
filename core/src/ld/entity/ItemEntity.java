@@ -37,7 +37,7 @@ public class ItemEntity extends SelectableEntity{
     @Override
     public void draw(){
         Draw.z(y + 2);
-        Draw.rect(item.region, x, y);
+        Draw.rect(item.region(), x, y);
     }
 
     @Override

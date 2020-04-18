@@ -125,7 +125,7 @@ public class Player extends Entity{
 
         if(item != null && dir != Dir.up){
             float offset = 1f;
-            Draw.rect(item.region, x + dir.direction.x * offset, y + 6f + dir.direction.y * offset);
+            Draw.rect(item.region(), x + dir.direction.x * offset, y + 6f + dir.direction.y * offset);
         }
 
         //draw input
