@@ -22,7 +22,7 @@ public class Renderer implements ApplicationListener{
     public FrameBuffer lights = new FrameBuffer(2, 2);
     public FxProcessor fx = new FxProcessor();
     public Bloom bloom = new Bloom();
-    public Color ambient = Color.clear;//new Color(0, 0, 0, 0.8f);
+    public Color ambient = new Color(0, 0, 0, 0);
 
     @Override
     public void init(){
@@ -46,6 +46,8 @@ public class Renderer implements ApplicationListener{
 
         Core.camera.update();
         Draw.proj(Core.camera);
+
+        ambient.a = control.lightness;
 
         if(control.playing()){
             buffer.begin(Color.clear);

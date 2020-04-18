@@ -16,7 +16,7 @@ public class Game extends ApplicationCore{
     public static final float speed = 2f;
 
     public static final float lFloor = 20f * 105f, lWeather = -20f;
-    public static final float heatDuration = 60 * 60 * 2;
+    public static final float heatDuration = 60 * 60 * 2, dayDuration = 60 * 60f * 5f;
 
     public static BitmapFont font;
     public static SortedSpriteBatch sbatch;

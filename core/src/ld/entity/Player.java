@@ -104,6 +104,14 @@ public class Player extends Entity{
                 item.clicked();
             }
         }
+
+        //hair fire
+        if(Mathf.chance(0.2 * Time.delta() * smoothHeat)){
+            Vec2 v = dir.direction;
+            float scl = -5f, bs = -2f;
+            float range = 1f;
+            Fx.hairBurn.at(player.x + Mathf.range(1f) + Mathf.random(v.x*scl) + v.x*bs, player.y + Mathf.range(1f) + Mathf.random(v.y*scl) + 12 + v.y*bs);
+        }
     }
 
     @Nullable SelectableEntity hovered(){
@@ -148,6 +156,8 @@ public class Player extends Entity{
         TextureRegion hands = Core.atlas.find("hands" + dir.suffix);
         TextureRegion leg = Core.atlas.find("player-leg" + dir.suffix);
 
+        Color hairColor = Tmp.c1.set(Pal.fire1).lerp(Pal.fire2, Mathf.absin(5f, 1f)).lerp(Color.scarlet, 0.3f).a(heat);
+
         float cx = x, cy = y + region.getHeight()/2f, cw = region.getWidth() * (dir.flip ? -1 : 1), ch = region.getHeight();
 
         float amount = 2;
@@ -165,6 +175,8 @@ public class Player extends Entity{
         }
 
         Runnable drawHair = () -> {
+            Draw.mixcol(hairColor, hairColor.a / 2f);
+
             Draw.rect(hair, cx, cy, cw, ch);
 
             index = 0;
@@ -179,6 +191,8 @@ public class Player extends Entity{
 
                 index ++;
             });
+
+            Draw.reset();
         };
 
         if(dir == Dir.down){
@@ -203,7 +217,10 @@ public class Player extends Entity{
             drawHair.run();
         }
 
+
+        Draw.mixcol(hairColor, hairColor.a / 2f);
         Draw.rect("hair-base" + dir.suffix, cx, cy, cw, ch);
+        Draw.reset();
 
         if(Core.atlas.isFound(eyes) && blinkTime <= 0f){
             //position

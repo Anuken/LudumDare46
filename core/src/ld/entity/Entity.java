@@ -21,6 +21,14 @@ public class Entity implements Position, QuadTreeObject{
         return false;
     }
 
+    public float height(){
+        return 8f;
+    }
+
+    public void move(Vec2 v){
+        move(v.x, v.y);
+    }
+
     public void move(float x, float y){
         Collisions.move(this, x, y);
     }

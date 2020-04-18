@@ -19,6 +19,14 @@ public class Fx{
         });
     }),
 
+    hairBurn = new Effect(40f, e -> {
+        Draw.z(e.y - 12f);
+        Draw.color(Pal.fire3, Pal.fire1, e.fout());
+        Angles.randLenVectors(e.id, 1, 10f * e.fin(), (x, y) -> {
+            Fill.circle(e.x + x, e.y + y, e.fslope() * 3f);
+        });
+    }),
+
     spark = new Effect(30, e -> {
         Draw.z(e.y - 10f);
         Draw.color(Pal.fire3);
@@ -57,6 +65,22 @@ public class Fx{
         Tmp.v1.set(e.x, e.y).lerp(item.target, e.fin(Interpolation.smooth));
         Draw.z(Tmp.v1.y - 8);
         Draw.rect(item.item.region(), Tmp.v1.x, Tmp.v1.y);
+    }),
+
+    hitsnow = new Effect(20, e -> {
+        Draw.z(e.y + 10f);
+        Draw.color(Color.white);
+        Angles.randLenVectors(e.id, 7, 30f * e.fin(), (x, y) -> {
+            Fill.circle(e.x + x, e.y + y, e.fout() * 3f + 1f);
+        });
+    }),
+
+    deathsnow = new Effect(20, e -> {
+        Draw.z(e.y + 10f);
+        Draw.color(Color.white);
+        Angles.randLenVectors(e.id, 20, 50f * e.fin(), (x, y) -> {
+            Fill.circle(e.x + x, e.y + y, e.fout() * 4f + 1f);
+        });
     });
 
     public static class ItemMove{

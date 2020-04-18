@@ -14,6 +14,11 @@ import ld.entity.*;
 import static ld.Game.*;
 
 public class Control implements ApplicationListener{
+    static final float[] dayValues = {1f, 1f, 1f, 1f, 0f, 0f, 0f, 1f};
+    static final Array<Prov<Enemy>> enemies = Array.with(
+    SnowDemon::new
+    );
+
     State state = State.menu;
 
     Array<Entity> entities = new Array<>(), removal = new Array<>(), addition = new Array<>();
@@ -21,6 +26,9 @@ public class Control implements ApplicationListener{
     Array<Entity> out = new Array<>();
 
     public float windTime;
+
+    public float lightness = 1f;
+    private float dayTime;
 
     public float windStrength(){
         return Noise.nnoise(Time.time(), 0f, 50f, 1f);
@@ -41,6 +49,8 @@ public class Control implements ApplicationListener{
     }
 
     public void reset(){
+        windTime = dayTime = 0f;
+        lightness = 1f;
         state = State.menu;
         player = new Player();
         entities.clear();
@@ -72,6 +82,10 @@ public class Control implements ApplicationListener{
             item.set(player.x + Mathf.range(100f), player.y + Mathf.range(100f));
             item.add();
         }
+
+        SnowDemon demon = new SnowDemon();
+        demon.set(player.x + 80f, player.y);
+        demon.add();
     }
 
     public void process(){
@@ -119,6 +133,15 @@ public class Control implements ApplicationListener{
             windTime += windStrength() * Time.delta();
 
             process();
+            dayTime += Time.delta();
+            dayTime %= dayDuration;
+
+            float fract = dayTime / dayDuration;
+
+            int index = Math.min((int)(fract * dayValues.length), dayValues.length - 1);
+            int nextIndex = (index + 1) % dayValues.length;
+            float interValue = (fract * dayValues.length - index);
+            lightness = 1f - Mathf.lerp(dayValues[index], dayValues[nextIndex], interValue);
         }
 
         if(debug){
