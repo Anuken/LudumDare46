@@ -135,6 +135,7 @@ public class Entity implements Position, QuadTreeObject{
         if(tile.floor == Block.teleporter){
             telecharge += Time.delta() / teleportDur;
             if(telecharge >= 1f){
+                Sounds.teleport.play(this);
                 Fx.teleported.at(this);
                 if(this == player){
                     ui.flash();

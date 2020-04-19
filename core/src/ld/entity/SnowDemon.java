@@ -43,6 +43,7 @@ public class SnowDemon extends Enemy{
         if(within(player, 20f)){
             if(player.damagePeriodic(damage())){
                 Fx.snowAttack.at(x, y + 1);
+                Sounds.hit.play(player);
             }
         }
 

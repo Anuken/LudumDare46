@@ -37,7 +37,7 @@ public class UI implements ApplicationListener{
             control.state = State.playing;
             paused.hide();
         }).row();
-        //paused.cont.button("Settings", settings::show).row();
+        paused.cont.button("Settings", settings::show).row();
         paused.cont.button("Controls", keys::show).row();
         paused.cont.button("Menu", () -> {
             Dialog conf = new Dialog("Confirm");
@@ -55,6 +55,8 @@ public class UI implements ApplicationListener{
 
             conf.show();
         }).row();
+
+        settings.main.sliderPref("sfxvol", "Sound Volume", 100, 0, 100, s -> s + "%");
 
         //menu
         Core.scene.table(t -> {

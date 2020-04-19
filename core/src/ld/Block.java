@@ -24,6 +24,7 @@ public enum Block{
             if(item.blockPlaced.entityType != null){
                 item.blockPlaced.entityType.get(new Point2(x, y));
             }
+            Sounds.place.play(x * tsize, y * tsize);
             player.item = null;
             Fx.pickup.at(x * tsize, y * tsize);
         }
@@ -140,9 +141,11 @@ public enum Block{
         @Override
         public void clicked(int x, int y, Item item){
             Fx.chop.at(x * tsize, y * tsize + 10f);
+            Sounds.chip.play(x * tsize, y * tsize);
             player.attackTime = 1f;
             renderer.shake(2f);
             if(Mathf.chance(item.chopChance)){
+                Sounds.breakBlock.play(x * tsize, y * tsize);
                 for(int i = 0; i < 6; i++){
                     Fx.chop.at(x * tsize + Mathf.range(4f), y * tsize + i * 9f + Mathf.range(4f));
                 }
@@ -185,10 +188,12 @@ public enum Block{
 
     public void clicked(int x, int y, Item item){
         if(breakable){
+            Sounds.chip.play(x * tsize, y * tsize);
             Fx.mine.at(x * tsize + Mathf.range(8f), y * tsize + 6f + Mathf.range(8f));
             player.attackTime = 1f;
             renderer.shake(2f);
             if(Mathf.chance(item.mineChance)){
+                Sounds.breakBlock.play(x * tsize, y * tsize);
                 for(int i = 0; i < 6; i++){
                     Fx.mine.at(x * tsize + Mathf.range(10f), y * tsize + i * 3f + Mathf.range(6f));
                 }

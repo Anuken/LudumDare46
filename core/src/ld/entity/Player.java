@@ -115,6 +115,7 @@ public class Player extends Entity{
         }
 
         if(Core.input.keyTap(Bind.drop) && item != null){
+            Sounds.throwItem.play(x, y);
             if(!raycastClick()){
                 //if something in the trajectory can interact with it...
                 ItemEntity dropped = new ItemEntity(item);

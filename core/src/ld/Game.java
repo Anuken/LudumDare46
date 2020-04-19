@@ -10,10 +10,10 @@ import ld.ui.*;
 public class Game extends ApplicationCore{
     public static final int zoom = 3;
     public static final String about = "Made by [royal]Anuken[] for [yellow]LD46[].\nTools Used:\n";
-    public static final boolean debug = true;
+    public static final boolean debug = false;
     public static final float tsize = 20;
     public static final Color shadowColor = new Color(0, 0, 0, 0.2f);
-    public static final float speed = 3f;
+    public static final float speed = 2.7f;
 
     public static final float heatDuration = 60 * 60 * 2.5f, dayDuration = 60 * 60f * 3f, spawnGap = 60 * 6, spawnChance = 0.5f, maxEnemies = 200, teleportDur = 70f, fireDuration = 3f * 60f * 60f;
     public static final int worldSize = 200;

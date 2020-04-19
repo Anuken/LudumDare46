@@ -24,7 +24,10 @@ public class Enemy extends Entity{
         hitEffect().at(x, y + height());
         health -= amount;
         hitTime = 1f;
+        Sounds.hitSnow.play(this);
+
         if(health <= 0){
+            Sounds.die.play(this);
             remove();
             killed();
             deathEffect().at(x, y + height());

@@ -38,7 +38,10 @@ public class Fire extends Entity{
         Fx.pickup.at(player);
         Fx.itemMove.at(player.x, player.y + 6, 0, new ItemMove(this, player.item));
 
-        Time.run(Fx.pickup.lifetime*0.75f, () -> Fx.fireballs.at(this));
+        Time.run(Fx.pickup.lifetime*0.75f, () -> {
+            Fx.fireballs.at(this);
+            Sounds.burnItem.play(this);
+        });
 
         //craft
         if(recipes.containsKey(player.item)){

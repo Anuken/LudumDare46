@@ -52,12 +52,14 @@ public class ItemEntity extends Entity{
             Item result = Recipe.get(player.item, item).result;
             Time.run(Fx.pickup.lifetime, () -> {
                 this.item = result;
+                Sounds.craft.play(x, y);
             });
 
             player.item = null;
         }else{
             remove();
 
+            Sounds.pickup.play(this);
             Fx.pickup.at(this);
             Fx.itemMove.at(x, y, 0, new ItemMove(new Position(){
                 @Override

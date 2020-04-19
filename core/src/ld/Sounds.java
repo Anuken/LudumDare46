@@ -2,9 +2,10 @@ package ld;
 
 import arc.*;
 import arc.audio.*;
+import arc.math.geom.*;
 
 public enum Sounds{
-    ;
+    craft, gameover, pickup, hit, hitSnow, teleport, die, place, chip, breakBlock, throwItem, burnItem;
 
     private Sound sound;
 
@@ -22,6 +23,10 @@ public enum Sounds{
         checkInit();
 
         sound.play();
+    }
+
+    public void play(Position pos){
+        play(pos.getX(), pos.getY());
     }
 
     public void play(float x, float y){

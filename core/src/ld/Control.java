@@ -213,6 +213,8 @@ public class Control implements ApplicationListener{
     void gameover(String reason){
         int minutes = (int)(timeCounted / 60 / 60);
 
+        Sounds.gameover.play();
+
         gameover = true;
         state = State.paused;
         DefaultDialog dialog = new DefaultDialog("[scarlet]Game Over");
