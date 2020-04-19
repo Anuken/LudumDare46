@@ -1,8 +1,14 @@
 package ld.entity;
 
+import arc.graphics.*;
+import arc.graphics.g2d.*;
+import arc.math.*;
 import arc.math.geom.*;
 import arc.math.geom.QuadTree.*;
+import arc.util.*;
+import ld.*;
 import ld.World.*;
+import ld.gfx.*;
 
 import static ld.Game.*;
 
@@ -10,7 +16,7 @@ public class Entity implements Position, QuadTreeObject{
     private static int lastID = 0;
 
     public final int id = lastID++;
-    public float x, y;
+    public float x, y, telecharge;
     public boolean added;
 
     public Tile tile(){
@@ -23,6 +29,10 @@ public class Entity implements Position, QuadTreeObject{
 
     public float height(){
         return 8f;
+    }
+
+    public boolean canTeleport(){
+        return false;
     }
 
     public void move(Vec2 v){
@@ -58,11 +68,22 @@ public class Entity implements Position, QuadTreeObject{
     }
 
     public void update(){
-
+        if(canTeleport()){
+            updateTeleport();
+        }
     }
 
     public void draw(){
-
+        if(canTeleport() && telecharge > 0){
+            Draw.z(0f);
+            float cx = world.t(x) * tsize, cy = world.t(y) * tsize;
+            Draw.color(Pal.fire2, Color.white, telecharge);
+            float fout = 1f - telecharge;
+            Lines.stroke(4f * telecharge);
+            Lines.square(cx, cy, 35f * fout, 45);
+            Lines.square(cx, cy, 15f * fout, 45);
+            Draw.reset();
+        }
     }
 
     public void drawShadow(){
@@ -94,6 +115,24 @@ public class Entity implements Position, QuadTreeObject{
     public void set(float x, float y){
         this.x = x;
         this.y = y;
+    }
+
+    public void updateTeleport(){
+        //update teleporter
+        Tile tile = tile();
+        if(tile.floor == Block.teleporter){
+            telecharge += Time.delta() / teleportDur;
+            if(telecharge >= 1f){
+                Fx.teleported.at(this);
+                if(this == player){
+                    ui.flash();
+                }
+                set(fire.x + Mathf.range(8f), fire.y - 20f + Mathf.range(8f));
+                Fx.teleported.at(this);
+            }
+        }else{
+            telecharge = 0f;
+        }
     }
 
     @Override

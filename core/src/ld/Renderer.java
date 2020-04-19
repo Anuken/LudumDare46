@@ -166,9 +166,7 @@ public class Renderer implements ApplicationListener{
 
         drawTiles((x, y) -> {
             Tile tile = world.tile(x, y);
-            if(tile.wall.solid){
-                Draw.rect("wallshadow", x * tsize, y * tsize);
-            }
+            tile.wall.drawShadow(x, y);
         });
 
         float clipSize = 90;

@@ -48,16 +48,24 @@ public class Enemy extends Entity{
     @Override
     public void clicked(){
         Item item = player.item;
-        Fx.itemThrow.at(player.x, player.y + 6, 0, new ItemMove(top(), player.item));
-        Time.run(Fx.itemThrow.lifetime*0.9f, () -> damage(item.damage));
-        if(!item.consumed){
-            Time.runTask(Fx.itemThrow.lifetime, () -> {
-                ItemEntity e = new ItemEntity(item);
-                e.set(x, y +5);
-                e.add();
-            });
+
+        if(!item.thrown){
+            if(timer.get(1, item.reload)){
+                damage(item.damage);
+                player.attackTime = 1f;
+            }
+        }else{
+            Fx.itemThrow.at(player.x, player.y + 6, 0, new ItemMove(top(), player.item));
+            Time.run(Fx.itemThrow.lifetime * 0.9f, () -> damage(item.damage));
+            if(!item.consumed){
+                Time.runTask(Fx.itemThrow.lifetime, () -> {
+                    ItemEntity e = new ItemEntity(item);
+                    e.set(x, y + 5);
+                    e.add();
+                });
+            }
+            player.item = null;
         }
-        player.item = null;
     }
 
     @Override

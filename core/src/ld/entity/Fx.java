@@ -61,6 +61,15 @@ public class Fx{
         });
     }),
 
+    teleported = new Effect(35, e -> {
+        Draw.z(e.y - 10f);
+        Draw.color(Pal.fire2);
+        Lines.stroke(3f * e.fout());
+        Angles.randLenVectors(e.id, 18, 40f * e.fin(), (x, y) -> {
+            Lines.lineAngle(e.x + x, e.y + y, Angles.angle(x, y), e.fslope() * 5f);
+        });
+    }),
+
     track = new Effect(100f, e -> {
         Draw.z(lFloor - 0.1f);
         Draw.alpha(e.fout(Interpolation.slowFast));
@@ -120,6 +129,14 @@ public class Fx{
     hitsnow = new Effect(15, e -> {
         Draw.z(e.y - 10f);
         Draw.color(Color.white, Color.gray, e.fin());
+        Angles.randLenVectors(e.id, 7, 30f * e.fin(), (x, y) -> {
+            Fill.circle(e.x + x, e.y + y, e.fout() * 3f + 1f);
+        });
+    }),
+
+    chop = new Effect(25f, e -> {
+        Draw.z(e.y - 10f);
+        Draw.color(Pal.woodLight, Pal.woodDark, e.fin() <= 0.5f ? 1f : 0f);
         Angles.randLenVectors(e.id, 7, 30f * e.fin(), (x, y) -> {
             Fill.circle(e.x + x, e.y + y, e.fout() * 3f + 1f);
         });

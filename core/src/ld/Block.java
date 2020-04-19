@@ -5,6 +5,7 @@ import arc.graphics.g2d.*;
 import arc.math.*;
 import arc.util.*;
 import ld.entity.*;
+import ld.gfx.*;
 
 import static ld.Game.*;
 
@@ -33,13 +34,49 @@ public enum Block{
     wall(false),
     crate(false){{
     }},
+    tree(false){
+        {
+            prop = true;
+            solid = false;
+            offset = 3;
+        }
+
+        @Override
+        public void drawShadow(int x, int y){
+            Drawf.shadow(x * tsize, y * tsize, 15f);
+        }
+
+        @Override
+        public boolean interactable(Item item){
+            return item.chopChance > 0;
+        }
+
+        @Override
+        public void clicked(int x, int y, Item item){
+            Fx.chop.at(x * tsize, y * tsize + 10f);
+            player.attackTime = 1f;
+            renderer.shake(2f);
+            if(Mathf.chance(item.chopChance)){
+                for(int i = 0; i < 6; i++){
+                    Fx.chop.at(x * tsize + Mathf.range(4f), y * tsize + i * 9f + Mathf.range(4f));
+                }
+                renderer.shake(6f);
+                int amount = Mathf.random(1, 4);
+                for(int i = 0; i < amount; i++){
+                    ItemEntity.create(Mathf.chance(0.6) ? Item.stick : Item.log, x * tsize, y * tsize).velocity.rnd(Mathf.random(4f));
+                }
+                world.tile(x, y).wall = none;
+            }
+        }
+    },
     teleporter,
     stonefloor;
 
     TextureRegion[] regions;
 
     public int height;
-    public boolean trackable, solid, floor = true;
+    public boolean trackable, solid, floor = true, prop;
+    public float offset;
 
     private boolean init = false;
 
@@ -87,15 +124,29 @@ public enum Block{
         }
     }
 
+    public void drawShadow(int x, int y){
+        if(solid){
+            Draw.rect("wallshadow", x * tsize, y * tsize);
+        }
+    }
+
     public void draw(int x, int y){
         checkInit();
 
         if(regions.length != 0){
-            Draw.z(y * tsize - tsize/2f);
-
             TextureRegion reg = regions[Mathf.randomSeed(Pack.longInt(x, y), 0, regions.length - 1)];
-            float offset = floor ? 0f : -tsize/2f + reg.getHeight()/2f;
-            Draw.rect(reg, x * tsize, y * tsize + offset);
+
+            if(prop){
+                Draw.z(y * tsize);
+
+                float offset = reg.getHeight() / 2f - this.offset;
+                Draw.rect(reg, x * tsize, y * tsize + offset);
+            }else{
+                Draw.z(y * tsize - tsize / 2f);
+
+                float offset = floor ? 0f : -tsize / 2f + reg.getHeight() / 2f;
+                Draw.rect(reg, x * tsize, y * tsize + offset);
+            }
         }
     }
 }

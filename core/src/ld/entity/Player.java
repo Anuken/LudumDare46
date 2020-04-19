@@ -17,18 +17,23 @@ public class Player extends Entity{
     static int index = 0;
     public static final float height = 9f;
     static final float blinkDuration = 5f;
-    static final float pickupRange = 50f, damageDur = 12f, teleportDur = 70f;
+    static final float pickupRange = 50f, damageDur = 12f;
 
     public Dir dir = Dir.right;
     public Interval time = new Interval(4);
 
     public @Nullable Item item;
-    public float heat = 1f, smoothHeat = heat, moveTime, hitTime, telecharge;
+    public float heat = 1f, smoothHeat = heat, moveTime, hitTime, attackTime;
 
     Vec2 movement = new Vec2();
     boolean walking;
     float blinkTime;
     int tracki;
+
+    @Override
+    public boolean canTeleport(){
+        return true;
+    }
 
     @Override
     public boolean solid(){
@@ -42,6 +47,7 @@ public class Player extends Entity{
 
     @Override
     public void update(){
+        super.update();
 
         //movement
         Tmp.v1.setZero().set(Core.input.axis(Bind.move_x), Core.input.axis(Bind.move_y)).nor().scl(Game.speed - (item == null ? 0 : item.weight));
@@ -129,17 +135,12 @@ public class Player extends Entity{
             Fx.hairBurn.at(x + Mathf.range(range) + Mathf.random(v.x*scl) + v.x*bs, y + Mathf.range(range) + Mathf.random(v.y*scl) + 12 + v.y*bs);
         }
 
-        //update teleporter
-        Tile tile = tile();
-        if(tile.floor == Block.teleporter){
-            telecharge += Time.delta() / teleportDur;
-            if(telecharge >= 1f){
-                ui.flash();
-                set(fire.x, fire.y - 20f);
-                dir = Dir.down;
-            }
+        //attack animation
+        if(item != null){
+            attackTime -= Time.delta() / item.reload;
+            attackTime = Mathf.clamp(attackTime);
         }else{
-            telecharge = 0f;
+            attackTime = 0f;
         }
     }
 
@@ -181,8 +182,11 @@ public class Player extends Entity{
         return world.tilew(Core.input.mouseWorldX(), Core.input.mouseWorldY());
     }
 
+
+
     @Override
     public void draw(){
+        super.draw();
         Draw.z(y);
 
         Drawf.light(x, y + height, 100f * smoothHeat + 50f, Pal.fire2, smoothHeat/2f + 0.05f);
@@ -194,7 +198,11 @@ public class Player extends Entity{
 
         if(item != null && dir != Dir.up){
             float offset = 1f;
-            Draw.rect(item.region(), x + dir.direction.x * offset, y + 6f + dir.direction.y * offset);
+            Draw.rect(item.region(),
+            x + dir.direction.x * offset,
+            y + 6f + dir.direction.y * offset + item.yoffset,
+            item.region().getWidth() * -Mathf.sign(dir.flip),
+            item.region().getHeight(), attackTime * 45f * Mathf.sign(dir.flip));
         }
 
         //draw input
@@ -216,15 +224,6 @@ public class Player extends Entity{
             Lines.circle(cx, cy, rad);
             Lines.stroke(1f, Color.white);
             Lines.circle(cx, cy, rad);
-        }
-
-        if(telecharge > 0){
-            float cx = world.t(x) * tsize, cy = world.t(y) * tsize;
-            Draw.color(Pal.fire2, Color.white, telecharge);
-            float fout = 1f - telecharge;
-            Lines.stroke(4f * telecharge);
-            Lines.square(cx, cy, 35f * fout, 45);
-            Lines.square(cx, cy, 15f * fout, 45);
         }
 
         Draw.reset();

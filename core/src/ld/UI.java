@@ -7,10 +7,12 @@ import arc.math.*;
 import arc.scene.actions.*;
 import arc.scene.event.*;
 import arc.scene.ui.*;
+import arc.scene.ui.layout.*;
 import arc.util.*;
+import ld.Control.*;
 import ld.ui.*;
 
-import static ld.Game.player;
+import static ld.Game.*;
 
 public class UI implements ApplicationListener{
     public Dialog paused, about;
@@ -29,6 +31,30 @@ public class UI implements ApplicationListener{
         about.cont.add(Game.about);
 
         paused = new Dialog("Paused");
+        paused.cont.defaults().size(200f, 50f);
+
+        paused.cont.button("Resume", () -> {
+            control.state = State.playing;
+            paused.hide();
+        }).row();
+        //paused.cont.button("Settings", settings::show).row();
+        paused.cont.button("Controls", keys::show).row();
+        paused.cont.button("Menu", () -> {
+            Dialog conf = new Dialog("Confirm");
+            conf.cont.add("Are you sure you want to quit?");
+            conf.buttons.defaults().size(120f, 50f);
+            conf.buttons.button("OK", () -> {
+                control.state = State.menu;
+                conf.hide();
+                paused.hide();
+            });
+
+            conf.buttons.button("Cancel", () -> {
+                conf.hide();
+            });
+
+            conf.show();
+        }).row();
 
         //menu
         Core.scene.table(t -> {
@@ -60,6 +86,26 @@ public class UI implements ApplicationListener{
                     Draw.color();
                 }).grow();
             }).size(300f, 30f);
+        });
+    }
+
+    public void showLoading(Runnable run){
+        if(debug){
+            run.run();
+            return;
+        }
+
+        Core.app.post(() -> {
+            Table table = Core.scene.table(Tex.window, t -> {
+                t.table(Tex.button, g -> {
+                    g.add("Generating...");
+                });
+            });
+            table.toFront();
+            Core.app.post(() -> Core.app.post(() -> {
+                run.run();
+                table.remove();
+            }));
         });
     }
 

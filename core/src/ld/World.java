@@ -56,10 +56,8 @@ public class World{
             addDoors(100, true);
         }};
 
-        FlowingCaveGenerator flow = new FlowingCaveGenerator(width, height);
-
         out = gen.generate(TilesetType.CORNER_CAVES);
-        display(DungeonUtility.hashesToLines(out));
+        //display(DungeonUtility.hashesToLines(out));
 
         //char[][] out = gen.generate();
         for(int x = 0; x < width; x++){
@@ -84,7 +82,7 @@ public class World{
                 if(c == '"'){
                     tile.floor = Block.stonefloor;
 
-                    if(Mathf.chance(0.002)){
+                    if(Mathf.chance(0.003)){
                         tile.floor = Block.teleporter;
                         for(Point2 p : Geometry.d8edge){
                             Tile other = tile(x + p.x, y + p.y);
@@ -93,10 +91,14 @@ public class World{
                             }
                         }
                     }
+
+                    if(Mathf.chance(0.001)){
+                        tile.item = Item.axe;
+                    }
                 }
 
                 if(c == '^'){
-                    if(Mathf.chance(0.4)){
+                    if(Mathf.chance(0.3)){
                         tile.item = Mathf.chance(0.6) ? Item.stick : Item.log;
                     }else if(Mathf.chance(0.1)){
                         tile.item = Item.key;
@@ -127,10 +129,17 @@ public class World{
                         }
                     }
                 }
+
+                if(tile.floor == Block.snow && !tile.wall.solid && Mathf.chance(0.01)){
+                    for(Point2 p : Geometry.d4){
+                        if(tile(x + p.x, y + p.y).wall == Block.wall){
+                            tile.wall = Block.tree;
+                            continue outer;
+                        }
+                    }
+                }
             }
         }
-
-        tile(width/2, height/2 - 5).floor = Block.teleporter;
     }
 
     void display(char[][] map){

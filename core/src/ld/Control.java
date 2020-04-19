@@ -11,6 +11,7 @@ import arc.util.*;
 import arc.util.noise.*;
 import ld.World.*;
 import ld.entity.*;
+import ld.ui.*;
 
 import static ld.Game.*;
 
@@ -31,6 +32,7 @@ public class Control implements ApplicationListener{
     public float windTime;
 
     public float lightness = 1f;
+    public boolean gameover = false;
 
     private float dayTime;
     private Interval times = new Interval(10);
@@ -67,38 +69,45 @@ public class Control implements ApplicationListener{
         entities.clear();
         removal.clear();
         addition.clear();
+        gameover = false;
     }
 
     public void play(){
         reset();
-        state = State.playing;
 
-        int size = 200;
+        ui.showLoading(() -> {
+            state = State.playing;
 
-        world.resize(size, size);
-        quadtree = new QuadTree<>(new Rect(0, 0, world.uwidth(), world.uheight()));
+            int size = worldSize;
 
-        Geometry.circle(size/2, size/2, 10, (x, y) -> world.tile(x, y).wall = Block.none);
+            world.resize(size, size);
+            quadtree = new QuadTree<>(new Rect(0, 0, world.uwidth(), world.uheight()));
 
-        player.add();
-        player.set(world.uwidth()/2f, world.uheight()/2f + 20f * 3);
+            Geometry.circle(size/2, size/2, 10, (x, y) -> world.tile(x, y).wall = Block.none);
 
-        fire = new Fire();
-        fire.heat = 1f;
-        fire.set(player.x, player.y);
-        fire.add();
+            player.add();
+            player.set(world.uwidth()/2f, world.uheight()/2f - 20f);
 
-        for(int i = 0; i < 30; i++){
-            ItemEntity item = new ItemEntity(Item.stick);
-            item.set(player.x + Mathf.range(100f), player.y + Mathf.range(100f));
-            //item.add();
-        }
+            fire = new Fire();
+            fire.heat = 1f;
+            fire.set(world.uwidth()/2f, world.uheight()/2f);
+            fire.add();
 
-        if(debug){
-            SnowDemon demon = new SnowDemon();
-            demon.set(player.x + 30f, player.y);
-            demon.add();
-        }
+            for(int i = 0; i < 30; i++){
+                ItemEntity item = new ItemEntity(Item.stick);
+                item.set(player.x + Mathf.range(100f), player.y + Mathf.range(100f));
+                //item.add();
+            }
+
+            if(debug){
+                SnowDemon demon = new SnowDemon();
+                demon.set(player.x + 30f, player.y);
+                demon.add();
+
+                world.tile(size/2, size/2 - 9).item = Item.axe;
+                world.tile(size/2, size/2 - 5).floor = Block.teleporter;
+            }
+        });
     }
 
     public void process(){
@@ -159,6 +168,29 @@ public class Control implements ApplicationListener{
             int nextIndex = (index + 1) % dayValues.length;
             float interValue = (fract * dayValues.length - index);
             lightness = 1f - Mathf.lerp(dayValues[index], dayValues[nextIndex], interValue);
+
+            if(Core.input.keyTap(KeyCode.escape)){
+                state = State.paused;
+                ui.paused.show();
+            }
+        }else if(state == State.paused){
+            if(Core.input.keyTap(KeyCode.escape)){
+                if(Core.scene.getDialog() != null){
+                    Core.scene.getDialog().hide();
+                }
+                ui.paused.hide();
+                state = State.playing;
+            }
+        }
+
+        if(playing() && !gameover){
+            if(fire.heat <= 0f){
+                gameover("Your fire went out!\n\n[lightgray]Make sure to keep it supplied with wood.");
+            }
+
+            if(player.heat <= 0f){
+                gameover("You've frozen\n\n[lightgray]Make sure you return to your fire to regain heat.");
+            }
         }
 
         if(debug){
@@ -166,6 +198,24 @@ public class Control implements ApplicationListener{
                 Core.app.exit();
             }
         }
+    }
+
+    void gameover(String reason){
+        gameover = true;
+        state = State.paused;
+        DefaultDialog dialog = new DefaultDialog("[scarlet]Game Over");
+        dialog.cont.add(reason).width(400f).wrap();
+        dialog.buttons.defaults().size(150f, 40f);
+        dialog.buttons.button("Menu", () -> {
+            reset();
+            state = State.menu;
+            dialog.hide();
+        });
+        dialog.buttons.button("Restart", () -> {
+            dialog.hide();
+            play();
+        });
+        dialog.show();
     }
 
     void spawnEnemies(){

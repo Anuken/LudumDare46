@@ -17,12 +17,18 @@ public class ItemEntity extends Entity{
     }
 
     @Override
+    public boolean canTeleport(){
+        return true;
+    }
+
+    @Override
     public boolean clickable(){
         return player.item == null;
     }
 
     @Override
     public void update(){
+        updateTeleport();
         super.update();
 
         if(!velocity.isZero()){
@@ -50,7 +56,11 @@ public class ItemEntity extends Entity{
             }
         }, item));
         Time.run(Fx.itemMove.lifetime, () -> {
-            player.item = item;
+            if(player.item != null){
+                create(item, player.x, player.y + 4f);
+            }else{
+                player.item = item;
+            }
         });
     }
 
@@ -61,6 +71,7 @@ public class ItemEntity extends Entity{
 
     @Override
     public void draw(){
+        super.draw();
         Draw.z(y + 2);
         Draw.rect(item.region(), x, y);
     }

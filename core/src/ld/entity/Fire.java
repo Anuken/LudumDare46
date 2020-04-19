@@ -12,7 +12,8 @@ import static ld.Game.*;
 
 public class Fire extends Entity{
     static final ObjectMap<Item, Item> recipes = ObjectMap.of(
-        Item.frozenKey, Item.key
+        Item.frozenKey, Item.key,
+        Item.axe, Item.fireAxe
     );
 
     public float heat, smoothHeat;
@@ -61,6 +62,10 @@ public class Fire extends Entity{
             heat += item.item.flammability;
             item.remove();
         }
+
+        //heat loss
+        heat -= Time.delta() / fireDuration;
+        heat = Mathf.clamp(heat);
     }
 
     @Override
