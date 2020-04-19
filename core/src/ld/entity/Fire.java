@@ -3,6 +3,7 @@ package ld.entity;
 import arc.*;
 import arc.graphics.g2d.*;
 import arc.math.*;
+import arc.struct.*;
 import arc.util.*;
 import ld.entity.Fx.*;
 import ld.gfx.*;
@@ -10,19 +11,34 @@ import ld.gfx.*;
 import static ld.Game.*;
 
 public class Fire extends Entity{
+    static final ObjectMap<Item, Item> recipes = ObjectMap.of(
+        Item.frozenKey, Item.key
+    );
+
     public float heat, smoothHeat;
 
     @Override
     public boolean clickable(){
-        return player.item != null && player.item.flammability > 0;
+        return player.item != null && (player.item.flammability > 0 || recipes.containsKey(player.item));
     }
 
     @Override
     public void clicked(){
         Fx.pickup.at(player);
         Fx.itemMove.at(player.x, player.y + 6, 0, new ItemMove(this, player.item));
+
         Time.run(Fx.pickup.lifetime*0.75f, () -> Fx.fireballs.at(this));
-        heat += player.item.flammability;
+
+        //craft
+        if(recipes.containsKey(player.item)){
+            Item result = recipes.get(player.item);
+            Time.run(Fx.pickup.lifetime, () -> {
+                ItemEntity.create(result, x, y).velocity.set(player).sub(this).limit(5f);
+            });
+        }else{
+            heat += player.item.flammability;
+        }
+
         player.item = null;
     }
 

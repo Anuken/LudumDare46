@@ -33,6 +33,7 @@ public enum Block{
     wall(false),
     crate(false){{
     }},
+    teleporter,
     stonefloor;
 
     TextureRegion[] regions;

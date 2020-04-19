@@ -83,6 +83,16 @@ public class World{
 
                 if(c == '"'){
                     tile.floor = Block.stonefloor;
+
+                    if(Mathf.chance(0.002)){
+                        tile.floor = Block.teleporter;
+                        for(Point2 p : Geometry.d8edge){
+                            Tile other = tile(x + p.x, y + p.y);
+                            if(other.exists()){
+                               other.wall = Block.wall;
+                            }
+                        }
+                    }
                 }
 
                 if(c == '^'){
@@ -119,6 +129,8 @@ public class World{
                 }
             }
         }
+
+        tile(width/2, height/2 - 5).floor = Block.teleporter;
     }
 
     void display(char[][] map){

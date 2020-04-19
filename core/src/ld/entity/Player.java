@@ -17,13 +17,13 @@ public class Player extends Entity{
     static int index = 0;
     public static final float height = 9f;
     static final float blinkDuration = 5f;
-    static final float pickupRange = 50f, damageDur = 12f;
+    static final float pickupRange = 50f, damageDur = 12f, teleportDur = 70f;
 
     public Dir dir = Dir.right;
     public Interval time = new Interval(4);
 
     public @Nullable Item item;
-    public float heat = 1f, smoothHeat = heat, moveTime, hitTime, charge;
+    public float heat = 1f, smoothHeat = heat, moveTime, hitTime, telecharge;
 
     Vec2 movement = new Vec2();
     boolean walking;
@@ -91,8 +91,7 @@ public class Player extends Entity{
         heat -= (1f + control.windStrength()) / heatDuration;
 
         //recharge of heat from nearby fires
-        Fire fire = control.closest(x, y, 30f, e -> e instanceof Fire);
-        if(fire != null){
+        if(within(fire, 30f)){
             heat = 1f;//Math.max(heat, fire.heat);
         }
 
@@ -128,6 +127,19 @@ public class Player extends Entity{
             float scl = -5f, bs = -2f;
             float range = 1f;
             Fx.hairBurn.at(x + Mathf.range(range) + Mathf.random(v.x*scl) + v.x*bs, y + Mathf.range(range) + Mathf.random(v.y*scl) + 12 + v.y*bs);
+        }
+
+        //update teleporter
+        Tile tile = tile();
+        if(tile.floor == Block.teleporter){
+            telecharge += Time.delta() / teleportDur;
+            if(telecharge >= 1f){
+                ui.flash();
+                set(fire.x, fire.y - 20f);
+                dir = Dir.down;
+            }
+        }else{
+            telecharge = 0f;
         }
     }
 
@@ -205,6 +217,17 @@ public class Player extends Entity{
             Lines.stroke(1f, Color.white);
             Lines.circle(cx, cy, rad);
         }
+
+        if(telecharge > 0){
+            float cx = world.t(x) * tsize, cy = world.t(y) * tsize;
+            Draw.color(Pal.fire2, Color.white, telecharge);
+            float fout = 1f - telecharge;
+            Lines.stroke(4f * telecharge);
+            Lines.square(cx, cy, 35f * fout, 45);
+            Lines.square(cx, cy, 15f * fout, 45);
+        }
+
+        Draw.reset();
     }
 
     public boolean damagePeriodic(float amount){
@@ -227,7 +250,7 @@ public class Player extends Entity{
 
         float cx = x, cy = y + region.getHeight()/2f, cw = region.getWidth() * (dir.flip ? -1 : 1), ch = region.getHeight();
 
-        boolean moveHands = walking && charge <= 0f;
+        boolean moveHands = walking;
         float handRaise = 0;
         float amount = 2;
         float mscl = 30f;
@@ -294,7 +317,7 @@ public class Player extends Entity{
         if(Core.atlas.isFound(eyes) && blinkTime <= 0f){
             //position
             Tmp.v2.set(x, y + 24);
-            Vec2 o = Tmp.v1.set(charge > 0 ? Core.input.mouseWorld() : hovered() != null ? Tmp.v3.set(hovered()) : Tmp.v2).sub(Tmp.v2).limit(1f);
+            Vec2 o = Tmp.v1.set(hovered() != null ? Tmp.v3.set(hovered()) : Tmp.v2).sub(Tmp.v2).limit(1f);
 
             if(this.dir.y){
                 if(Math.abs(o.y) > 0.3f){

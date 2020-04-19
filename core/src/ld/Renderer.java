@@ -146,8 +146,10 @@ public class Renderer implements ApplicationListener{
     void draw(){
         //assign matrix to queue light batch - must be done before flush
         Core.batch = qbatch;
+        Draw.reset();
         Draw.proj(Core.camera);
         Core.batch = sbatch;
+        Draw.reset();
 
         Drawf.sort(false);
         //tiles - floor

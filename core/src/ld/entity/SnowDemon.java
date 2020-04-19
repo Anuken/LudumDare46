@@ -2,14 +2,24 @@ package ld.entity;
 
 import arc.graphics.g2d.*;
 import arc.math.*;
+import arc.struct.*;
 import arc.util.*;
 
 import static ld.Game.player;
 
 public class SnowDemon extends Enemy{
+    static Array<Drop> drops = Array.with(
+        new Drop(Item.frozenKey, 0.2f)
+    );
+
     float attacklerp = 0f;
     {
-        health = 50;
+        health = 40;
+    }
+
+    @Override
+    public Array<Drop> drops(){
+        return drops;
     }
 
     @Override

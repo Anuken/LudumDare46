@@ -4,6 +4,8 @@ import arc.*;
 import arc.graphics.*;
 import arc.graphics.g2d.*;
 import arc.math.*;
+import arc.scene.actions.*;
+import arc.scene.event.*;
 import arc.scene.ui.*;
 import arc.util.*;
 import ld.ui.*;
@@ -58,6 +60,13 @@ public class UI implements ApplicationListener{
                     Draw.color();
                 }).grow();
             }).size(300f, 30f);
+        });
+    }
+
+    public void flash(){
+        Core.scene.table(Tex.white, t -> {
+            t.touchable(Touchable.disabled);
+            t.actions(Actions.fadeOut(2f, Interpolation.fade), Actions.remove());
         });
     }
 

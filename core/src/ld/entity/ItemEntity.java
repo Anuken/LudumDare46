@@ -69,4 +69,11 @@ public class ItemEntity extends Entity{
     public void drawShadow(){
         //Drawf.shadow(x, y, 6f);
     }
+
+    public static ItemEntity create(Item item, float x, float y){
+        ItemEntity e = new ItemEntity(item);
+        e.set(x, y);
+        e.add();
+        return e;
+    }
 }

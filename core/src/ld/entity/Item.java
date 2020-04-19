@@ -20,7 +20,8 @@ public enum Item{
     axe{{
         damage = 20f;
     }},
-    key;
+    key,
+    frozenKey;
 
     public float flammability;
     public float damage;

@@ -3,10 +3,12 @@ package ld.entity;
 import arc.graphics.*;
 import arc.math.*;
 import arc.math.geom.*;
+import arc.struct.*;
 import arc.util.*;
 import ld.entity.Fx.*;
 import ld.gfx.*;
 
+import static ld.Game.fire;
 import static ld.Game.*;
 
 public class Enemy extends Entity{
@@ -32,6 +34,10 @@ public class Enemy extends Entity{
     public void hitbox(Rect rect){
         float w = 8f, h = 16f;
         rect.set(x - w/2f, y, w, h);
+    }
+
+    public Array<Drop> drops(){
+        return Array.with();
     }
 
     @Override
@@ -95,7 +101,11 @@ public class Enemy extends Entity{
     }
 
     public void killed(){
-
+        for(Drop drop : drops()){
+            if(Mathf.chance(drop.chance)){
+                ItemEntity.create(drop.item, x, y + 5).velocity.rnd(1f);
+            }
+        }
     }
 
     public Effect hitEffect(){
@@ -104,5 +114,15 @@ public class Enemy extends Entity{
 
     public Effect deathEffect(){
         return Fx.deathsnow;
+    }
+
+    public static class Drop{
+        public final Item item;
+        public final double chance;
+
+        public Drop(Item item, double chance){
+            this.item = item;
+            this.chance = chance;
+        }
     }
 }
