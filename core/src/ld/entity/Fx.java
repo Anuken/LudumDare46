@@ -1,5 +1,6 @@
 package ld.entity;
 
+import arc.*;
 import arc.graphics.*;
 import arc.graphics.g2d.*;
 import arc.math.*;
@@ -7,7 +8,7 @@ import arc.math.geom.*;
 import arc.util.*;
 import ld.gfx.*;
 
-import static ld.Game.lFloor;
+import static ld.Game.*;
 
 public class Fx{
     public static final Effect
@@ -25,6 +26,15 @@ public class Fx{
         Angles.randLenVectors(e.id, 2, 20f * e.fin(), (x, y) -> {
             Fill.circle(e.x + x, e.y + y, e.fslope() * 2f);
         });
+    }),
+
+    unlock = new Effect(50f, e -> {
+        Draw.z(e.y);
+
+        Draw.mixcol(Color.white, e.fout());
+        Draw.alpha(e.fout());
+        TextureRegion region = Core.atlas.find("door");
+        Draw.rect(region, e.x, e.y + region.getWidth()/2f);
     }),
 
     fire = new Effect(90f, e -> {
@@ -82,6 +92,15 @@ public class Fx{
         Draw.rect(item.item.region(), Tmp.v1.x, Tmp.v1.y);
     }),
 
+    itemThrow = new Effect(15, e -> {
+        if(!(e.data instanceof ItemMove)) return;
+
+        ItemMove item = e.data();
+        Tmp.v1.set(e.x, e.y).lerp(item.target, e.fin(Interpolation.fastSlow));
+        Draw.z(Tmp.v1.y - 8);
+        Draw.rect(item.item.region(), Tmp.v1.x, Tmp.v1.y);
+    }),
+
     chargeShot = new Effect(10, e -> {
         if(!(e.data instanceof Vec2)) return;
 
@@ -98,7 +117,7 @@ public class Fx{
         });
     }),
 
-    hitsnow = new Effect(5, e -> {
+    hitsnow = new Effect(15, e -> {
         Draw.z(e.y - 10f);
         Draw.color(Color.white, Color.gray, e.fin());
         Angles.randLenVectors(e.id, 7, 30f * e.fin(), (x, y) -> {

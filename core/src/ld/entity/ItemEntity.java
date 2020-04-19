@@ -1,14 +1,16 @@
 package ld.entity;
 
 import arc.graphics.g2d.*;
+import arc.math.*;
 import arc.math.geom.*;
 import arc.util.*;
 import ld.entity.Fx.*;
 
 import static ld.Game.player;
 
-public class ItemEntity extends SelectableEntity{
+public class ItemEntity extends Entity{
     public Item item;
+    public Vec2 velocity = new Vec2();
 
     public ItemEntity(Item item){
         this.item = item;
@@ -20,10 +22,33 @@ public class ItemEntity extends SelectableEntity{
     }
 
     @Override
+    public void update(){
+        super.update();
+
+        if(!velocity.isZero()){
+            move(velocity.x, velocity.y);
+
+            float drag = 0.13f;
+
+            velocity.scl(Mathf.clamp(1f - drag * Time.delta()));
+        }
+    }
+
+    @Override
     public void clicked(){
         remove();
         Fx.pickup.at(this);
-        Fx.itemMove.at(x, y, 0, new ItemMove(new Vec2(player.x, player.y + 6), item));
+        Fx.itemMove.at(x, y, 0, new ItemMove(new Position(){
+            @Override
+            public float getX(){
+                return player.x;
+            }
+
+            @Override
+            public float getY(){
+                return player.y + 6;
+            }
+        }, item));
         Time.run(Fx.itemMove.lifetime, () -> {
             player.item = item;
         });

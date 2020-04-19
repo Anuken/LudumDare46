@@ -6,15 +6,18 @@ import arc.input.*;
 import arc.math.*;
 import arc.math.geom.*;
 import arc.struct.*;
-import arc.util.*;
 import arc.util.ArcAnnotate.*;
+import arc.util.*;
 import arc.util.noise.*;
+import ld.World.*;
 import ld.entity.*;
 
 import static ld.Game.*;
 
 public class Control implements ApplicationListener{
     static final float[] dayValues = {1f, 1f, 1f, 1f, 0f, 0f, 0f, 1f};
+
+
     static final Array<Prov<Enemy>> enemies = Array.with(
     SnowDemon::new
     );
@@ -28,7 +31,9 @@ public class Control implements ApplicationListener{
     public float windTime;
 
     public float lightness = 1f;
+
     private float dayTime;
+    private Interval times = new Interval(10);
 
     public float windStrength(){
         return Noise.nnoise(Time.time(), 0f, 50f, 1f);
@@ -78,7 +83,7 @@ public class Control implements ApplicationListener{
         player.add();
         player.set(world.uwidth()/2f, world.uheight()/2f + 20f * 3);
 
-        Fire fire = new Fire();
+        fire = new Fire();
         fire.heat = 1f;
         fire.set(player.x, player.y);
         fire.add();
@@ -89,9 +94,11 @@ public class Control implements ApplicationListener{
             //item.add();
         }
 
-        SnowDemon demon = new SnowDemon();
-        demon.set(player.x + 80f, player.y);
-        demon.add();
+        if(debug){
+            SnowDemon demon = new SnowDemon();
+            demon.set(player.x + 30f, player.y);
+            demon.add();
+        }
     }
 
     public void process(){
@@ -138,6 +145,10 @@ public class Control implements ApplicationListener{
             Time.update();
             windTime += windStrength() * Time.delta();
 
+            checkItem();
+
+            spawnEnemies();
+
             process();
             dayTime += Time.delta();
             dayTime %= dayDuration;
@@ -154,6 +165,45 @@ public class Control implements ApplicationListener{
             if(Core.input.keyTap(KeyCode.escape)){
                 Core.app.exit();
             }
+        }
+    }
+
+    void spawnEnemies(){
+        if(times.get(0, spawnGap) && Enemy.count < maxEnemies && Mathf.chance(spawnChance * (2f - lightness))){
+            int maxAdd = 10;
+            int pad = -1;
+            int width = (int)(Core.camera.width / tsize / 2) + pad;
+            int height = (int)(Core.camera.height / tsize / 2) + pad;
+            int baseX = world.t(Core.camera.position.x), baseY = world.t(Core.camera.position.y);
+
+            //try several attempts
+            for(int i = 0; i < 10; i++){
+                int signX = Mathf.randomSign(), signY = Mathf.randomSign();
+                boolean isY = Mathf.randomBoolean();
+                int x = isY ? Mathf.range(width + maxAdd) + baseX : Mathf.random(width, width + maxAdd) * signX + baseX;
+                int y = !isY ? Mathf.range(height + maxAdd) + baseY : Mathf.random(height, height + maxAdd) * signY + baseY;
+
+                if(!world.tile(x, y).solid() && world.tile(x, y).exists() && !Mathf.within(x * tsize, y * tsize, fire.x, fire.y, 200f)){
+                    Prov<Enemy> prov = enemies.random();
+                    Enemy e = prov.get();
+                    e.set(x * tsize, y * tsize);
+                    e.add();
+
+                    break;
+                }
+            }
+        }
+    }
+
+    void checkItem(){
+        int tx = world.t(Core.input.mouseWorldX()), ty = world.t(Core.input.mouseWorldY());
+        //make items live
+        Tile tile = world.tile(tx, ty);
+        if(tile.item != null){
+            ItemEntity entity = new ItemEntity(tile.item);
+            entity.set(tx * tsize, ty * tsize);
+            entity.add();
+            tile.item = null;
         }
     }
 

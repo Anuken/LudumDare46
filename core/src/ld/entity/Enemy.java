@@ -4,13 +4,18 @@ import arc.graphics.*;
 import arc.math.*;
 import arc.math.geom.*;
 import arc.util.*;
+import ld.entity.Fx.*;
 import ld.gfx.*;
 
-import static ld.Game.renderer;
+import static ld.Game.*;
 
 public class Enemy extends Entity{
-    public float health, hitTime;
-    public static final Color hitColor = Pal.fire2;
+    public static int count;
+
+    public float health, hitTime, size;
+    public static final Color hitColor = Color.white;
+
+    private Interval timer = new Interval(4);
 
     public void damage(float amount){
         hitEffect().at(x, y + height());
@@ -30,11 +35,53 @@ public class Enemy extends Entity{
     }
 
     @Override
+    public boolean clickable(){
+        return player.item != null && player.item.damage > 0;
+    }
+
+    @Override
+    public void clicked(){
+        Item item = player.item;
+        Fx.itemThrow.at(player.x, player.y + 6, 0, new ItemMove(top(), player.item));
+        Time.run(Fx.itemThrow.lifetime*0.9f, () -> damage(item.damage));
+        if(!item.consumed){
+            Time.runTask(Fx.itemThrow.lifetime, () -> {
+                ItemEntity e = new ItemEntity(item);
+                e.set(x, y +5);
+                e.add();
+            });
+        }
+        player.item = null;
+    }
+
+    @Override
+    public void add(){
+        if(!added) count ++;
+        super.add();
+    }
+
+    @Override
+    public void remove(){
+        if(added) count --;
+        super.remove();
+    }
+
+    @Override
     public void update(){
         super.update();
 
         hitTime -= Time.delta() / 20f;
         hitTime = Mathf.clamp(hitTime);
+        size = Mathf.lerpDelta(size, 1f, 0.03f);
+
+        if(!within(player, 700)){
+            remove();
+        }
+
+        if(within(fire, 12f) && timer.get(0, 15f)){
+            damage(9f);
+            fire.heat -= 0.05f;
+        }
     }
 
     @Override
@@ -44,7 +91,7 @@ public class Enemy extends Entity{
 
     @Override
     public void drawShadow(){
-        Drawf.shadow(x, y, 10f);
+        Drawf.shadow(x, y, 10f * size);
     }
 
     public void killed(){

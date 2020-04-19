@@ -4,20 +4,34 @@ import arc.*;
 import arc.graphics.g2d.*;
 import arc.math.*;
 import arc.util.*;
+import ld.entity.*;
 
 import static ld.Game.*;
 
 public enum Block{
     none,
     ice,
+    icewall(false),
+    door(false){
+        {
+            solid = true;
+        }
+
+        public boolean interactable(Item item){
+            return item == Item.key;
+        }
+
+        public void clicked(int x, int y, Item item){
+            world.tile(x, y).wall = Block.none;
+            player.item = null;
+            Fx.unlock.at(x * tsize, y * tsize);
+        }
+    },
     snow{{
         trackable = true;
     }},
-    wall(false){{
-        solid = true;
-    }},
+    wall(false),
     crate(false){{
-        solid = true;
     }},
     stonefloor;
 
@@ -34,6 +48,17 @@ public enum Block{
 
     Block(boolean floor){
         this.floor = floor;
+        if(!floor){
+            solid = true;
+        }
+    }
+
+    public boolean interactable(Item item){
+        return false;
+    }
+
+    public void clicked(int x, int y, Item item){
+
     }
 
     private void checkInit(){

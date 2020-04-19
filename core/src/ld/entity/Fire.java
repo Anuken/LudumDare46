@@ -9,7 +9,7 @@ import ld.gfx.*;
 
 import static ld.Game.*;
 
-public class Fire extends SelectableEntity{
+public class Fire extends Entity{
     public float heat, smoothHeat;
 
     @Override
@@ -36,6 +36,14 @@ public class Fire extends SelectableEntity{
 
         if(Mathf.chance(0.2 * Time.delta() * heat)){
             Fx.fire.at(x, y, heat);
+        }
+
+        ItemEntity item = control.closest(x, y, 7f, e -> e instanceof ItemEntity && ((ItemEntity)e).item.flammability > 0);
+        if(item != null){
+            Fx.pickup.at(item);
+            Fx.fireballs.at(this);
+            heat += item.item.flammability;
+            item.remove();
         }
     }
 

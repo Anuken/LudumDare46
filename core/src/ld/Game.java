@@ -13,10 +13,10 @@ public class Game extends ApplicationCore{
     public static final boolean debug = true;
     public static final float tsize = 20;
     public static final Color shadowColor = new Color(0, 0, 0, 0.2f);
-    public static final float speed = 2f;
+    public static final float speed = 3f;
 
     public static final float lFloor = 20f * 105f, lWeather = -20f;
-    public static final float heatDuration = 60 * 60 * 2, dayDuration = 60 * 60f * 5f;
+    public static final float heatDuration = 60 * 60 * 2, dayDuration = 60 * 60f * 5f, spawnGap = 60 * 10, spawnChance = 0.5f, maxEnemies = 560;
 
     public static BitmapFont font;
     public static SortedSpriteBatch sbatch;
@@ -28,6 +28,7 @@ public class Game extends ApplicationCore{
     public static Control control;
     public static World world;
 
+    public static Fire fire;
     public static Player player;
 
     @Override

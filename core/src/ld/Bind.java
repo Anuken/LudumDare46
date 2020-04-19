@@ -7,7 +7,8 @@ import arc.input.*;
 public enum Bind implements KeyBind{
     move_x(new Axis(KeyCode.a, KeyCode.d)),
     move_y(new Axis(KeyCode.s, KeyCode.w)),
-    pickup(KeyCode.mouseLeft);
+    interact(KeyCode.mouseLeft),
+    drop(KeyCode.mouseRight);
 
     private final KeybindValue keyboard, controller;
 

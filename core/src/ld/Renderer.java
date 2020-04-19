@@ -153,7 +153,9 @@ public class Renderer implements ApplicationListener{
         //tiles - floor
         drawTiles((x, y) -> {
             Tile tile = world.tile(x, y);
-            tile.floor.draw(x, y);
+            if(!tile.wall.solid){
+                tile.floor.draw(x, y);
+            }
         });
 
         //shadows
@@ -167,7 +169,13 @@ public class Renderer implements ApplicationListener{
             }
         });
 
+        float clipSize = 90;
+
         for(Entity e : control.entities){
+            if(!camera.bounds(Tmp.r1).overlaps(Tmp.r2.setCentered(e.x, e.y, clipSize))){
+                continue;
+            }
+
             e.drawShadow();
         }
 
@@ -181,10 +189,18 @@ public class Renderer implements ApplicationListener{
         drawTiles((x, y) -> {
             Tile tile = world.tile(x, y);
             tile.wall.draw(x, y);
+            if(tile.item != null){
+                Draw.z(y*tsize + 2);
+                Draw.rect(tile.item.region(), x * tsize, y * tsize);
+            }
         });
 
         //entities
         for(Entity e : control.entities){
+            if(!camera.bounds(Tmp.r1).overlaps(Tmp.r2.setCentered(e.x, e.y, clipSize))){
+                continue;
+            }
+
             e.draw();
             Draw.reset();
         }

@@ -5,9 +5,10 @@ import arc.graphics.*;
 import arc.graphics.g2d.*;
 import arc.math.*;
 import arc.math.geom.*;
-import arc.util.*;
 import arc.util.ArcAnnotate.*;
+import arc.util.*;
 import ld.*;
+import ld.World.*;
 import ld.gfx.*;
 
 import static ld.Game.*;
@@ -43,7 +44,7 @@ public class Player extends Entity{
     public void update(){
 
         //movement
-        Tmp.v1.setZero().set(Core.input.axis(Bind.move_x), Core.input.axis(Bind.move_y)).nor().scl(Game.speed);
+        Tmp.v1.setZero().set(Core.input.axis(Bind.move_x), Core.input.axis(Bind.move_y)).nor().scl(Game.speed - (item == null ? 0 : item.weight));
 
         move(Tmp.v1.x, Tmp.v1.y);
 
@@ -99,10 +100,23 @@ public class Player extends Entity{
         smoothHeat = Mathf.lerpDelta(smoothHeat, heat, 0.05f);
 
         //pick up nearby objects
-        if(Core.input.keyTap(Bind.pickup)){
-            SelectableEntity item = hovered();
+        if(Core.input.keyTap(Bind.interact)){
+            Entity item = hovered();
             if(item != null){
                 item.clicked();
+            }else if(this.item != null && hoverTile().wall.interactable(this.item)){
+                hoverTile().wall.clicked(world.t(Core.input.mouseWorldX()), world.t(Core.input.mouseWorldY()), this.item);
+            }
+        }
+
+        if(Core.input.keyTap(Bind.drop) && item != null){
+            if(!raycastClick()){
+                //if something in the trajectory can interact with it...
+                ItemEntity dropped = new ItemEntity(item);
+                dropped.set(x, y + 5);
+                dropped.velocity.trns(angle(), 6f);
+                dropped.add();
+                item = null;
             }
         }
 
@@ -113,25 +127,53 @@ public class Player extends Entity{
             Vec2 v = dir.direction;
             float scl = -5f, bs = -2f;
             float range = 1f;
-            Fx.hairBurn.at(player.x + Mathf.range(range) + Mathf.random(v.x*scl) + v.x*bs, player.y + Mathf.range(range) + Mathf.random(v.y*scl) + 12 + v.y*bs);
+            Fx.hairBurn.at(x + Mathf.range(range) + Mathf.random(v.x*scl) + v.x*bs, y + Mathf.range(range) + Mathf.random(v.y*scl) + 12 + v.y*bs);
         }
+    }
+
+    boolean raycastClick(){
+        //origin
+        Tmp.v1.trns(angle(), 16).add(x, y + height);
+        //destination
+        Tmp.v2.set(Core.input.mouseWorld()).sub(Tmp.v1).setLength(50).add(Tmp.v1);
+
+        //query rect
+        Tmp.r1.set(Math.min(Tmp.v1.x, Tmp.v2.x), Math.min(Tmp.v1.y, Tmp.v2.y), Math.abs(Tmp.v1.x - Tmp.v2.x), Math.abs(Tmp.v1.y - Tmp.v2.y));
+        boolean[] clicked = {false};
+
+        control.nearby(Tmp.r1).each(Entity::clickable, e -> {
+            if(clicked[0]) return;
+            e.hitbox(Tmp.r2);
+            if(Intersector.intersectSegmentRectangle(Tmp.v1, Tmp.v2, Tmp.r2)){
+                e.clicked();
+                clicked[0] = true;
+            }
+        });
+
+        return clicked[0];
     }
 
     public float angle(){
         return Angles.angle(x, y + 8, Core.input.mouseWorld().x, Core.input.mouseWorld().y);
     }
 
-    @Nullable SelectableEntity hovered(){
-        SelectableEntity entity = control.closest(Core.input.mouseWorld().x, Core.input.mouseWorld().y, 12f, e -> e instanceof SelectableEntity && ((SelectableEntity)e).clickable());
+    @Nullable Entity hovered(){
+        Entity entity = control.closest(Core.input.mouseWorld().x, Core.input.mouseWorld().y, 12f, e -> e.clickable());
         if(entity != null && !entity.within(player, pickupRange)){
             return null;
         }
         return entity;
     }
 
+    Tile hoverTile(){
+        return world.tilew(Core.input.mouseWorldX(), Core.input.mouseWorldY());
+    }
+
     @Override
     public void draw(){
         Draw.z(y);
+
+        Drawf.light(x, y + height, 100f * smoothHeat + 50f, Pal.fire2, smoothHeat/2f + 0.05f);
 
         renderer.beginOutline();
         drawDirection(dir);
@@ -145,7 +187,7 @@ public class Player extends Entity{
 
         //draw input
         Draw.z(0);
-        SelectableEntity item = hovered();
+        Entity item = hovered();
         if(item != null){
             float rad = 6f + Mathf.absin(4f, 2f);
 
@@ -153,6 +195,15 @@ public class Player extends Entity{
             Lines.circle(item.x, item.y, rad);
             Lines.stroke(1f, Color.white);
             Lines.circle(item.x, item.y, rad);
+        }else if(this.item != null && hoverTile().wall.interactable(this.item)){
+            float rad = 7f + Mathf.absin(4f, 2f);
+
+            float cx = world.t(Core.input.mouseWorldX()) * tsize, cy = world.t(Core.input.mouseWorldY()) * tsize;
+
+            Lines.stroke(3f, Color.black);
+            Lines.circle(cx, cy, rad);
+            Lines.stroke(1f, Color.white);
+            Lines.circle(cx, cy, rad);
         }
     }
 

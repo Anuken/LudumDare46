@@ -32,7 +32,7 @@ public class SnowDemon extends Enemy{
     public void draw(){
 
         Draw.z(y);
-        float w = 26, h = Mathf.absin(8f, 6f) + 20 + Mathf.sin(4f, 5f*attacklerp);
+        float w = 26 * size, h =(Mathf.absin(8f, 6f) + 20 + Mathf.sin(4f, 5f*attacklerp)) * size;
         Draw.mixcol(hitColor, hitTime);
         Draw.rect("snowdemon", x, y + h/2, w, h);
     }

@@ -29,6 +29,20 @@ public class Entity implements Position, QuadTreeObject{
         move(v.x, v.y);
     }
 
+    public Position top(){
+        return new Position(){
+            @Override
+            public float getX(){
+                return x;
+            }
+
+            @Override
+            public float getY(){
+                return y + height();
+            }
+        };
+    }
+
     public void move(float x, float y){
         Collisions.move(this, x, y);
     }
@@ -53,6 +67,14 @@ public class Entity implements Position, QuadTreeObject{
 
     public void drawShadow(){
 
+    }
+
+    public void clicked(){
+
+    }
+
+    public boolean clickable(){
+        return false;
     }
 
     public void add(){
