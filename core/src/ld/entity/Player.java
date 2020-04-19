@@ -14,13 +14,12 @@ import static ld.Game.*;
 
 public class Player extends Entity{
     static int index = 0;
-    public static final float height = 9f, shotLen = 16f;
+    public static final float height = 9f;
     static final float blinkDuration = 5f;
-    static final float pickupRange = 50f, damageDur = 12f, maxCharge = 30f, beamRange = 300f;
+    static final float pickupRange = 50f, damageDur = 12f;
 
     public Dir dir = Dir.right;
     public Interval time = new Interval(4);
-    public Weapon weapon = Weapon.beam;
 
     public @Nullable Item item;
     public float heat = 1f, smoothHeat = heat, moveTime, hitTime, charge;
@@ -107,26 +106,10 @@ public class Player extends Entity{
             }
         }
 
-        //charge up attack
-        if(Core.input.keyDown(Bind.shoot)){
-            dir = Dir.angle(angle());
-            charge += Time.delta();
-        }
-
-        if(Core.input.keyRelease(Bind.shoot)){
-            if((charge / maxCharge) > 0.5f){
-                weapon.shoot(this, charge / maxCharge);
-            }
-
-            charge = 0;
-        }
-
-        charge = Math.min(charge, maxCharge);
-
         hitTime -= Time.delta() / damageDur;
 
         //hair fire
-        if(Mathf.chance(0.2 * Time.delta() * smoothHeat)){
+        if(Mathf.chance(0.4 * Time.delta() * smoothHeat)){
             Vec2 v = dir.direction;
             float scl = -5f, bs = -2f;
             float range = 1f;
@@ -171,11 +154,6 @@ public class Player extends Entity{
             Lines.stroke(1f, Color.white);
             Lines.circle(item.x, item.y, rad);
         }
-
-        //attack
-        if(charge > 0){
-            weapon.draw(this, charge / maxCharge);
-        }
     }
 
     public boolean damagePeriodic(float amount){
@@ -193,13 +171,13 @@ public class Player extends Entity{
         TextureRegion hands = Core.atlas.find("hands" + dir.suffix);
         TextureRegion leg = Core.atlas.find("player-leg" + dir.suffix);
 
-        Color hairColor = Tmp.c1.set(Pal.fire1).lerp(Pal.fire2, Mathf.absin(5f, 1f)).lerp(Color.scarlet, 0.31f).a(heat);
+        Color hairColor = Tmp.c1.set(Color.white);
         float ha = heat * 0.6f;
 
         float cx = x, cy = y + region.getHeight()/2f, cw = region.getWidth() * (dir.flip ? -1 : 1), ch = region.getHeight();
 
         boolean moveHands = walking && charge <= 0f;
-        float handRaise = charge / maxCharge * 2f;
+        float handRaise = 0;
         float amount = 2;
         float mscl = 30f;
         float base = (moveTime / mscl) % 1f;
@@ -215,7 +193,7 @@ public class Player extends Entity{
         }
 
         Runnable drawHair = () -> {
-            Draw.mixcol(hairColor, ha);
+            Draw.color(hairColor);
 
             Draw.rect(hair, cx, cy, cw, ch);
 
@@ -258,7 +236,7 @@ public class Player extends Entity{
         }
 
 
-        Draw.mixcol(hairColor, ha);
+        Draw.color(hairColor);
         Draw.rect("hair-base" + dir.suffix, cx, cy, cw, ch);
         Draw.reset();
 
@@ -282,7 +260,7 @@ public class Player extends Entity{
             //looking up makes no sense in 3D space?
             //o.y = Math.min(o.y, 0f);
 
-            Draw.color(Tmp.c1.set(0xff390dff), Pal.fire2, charge / maxCharge);
+            Draw.color(Tmp.c1.set(0xff390dff));
             Draw.rect(eyes, cx + o.x, cy + o.y, cw, ch);
         }
 

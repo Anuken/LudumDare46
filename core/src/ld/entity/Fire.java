@@ -33,6 +33,10 @@ public class Fire extends SelectableEntity{
         if(Mathf.chance(0.02 * Time.delta() * heat)){
             Fx.spark.at(this);
         }
+
+        if(Mathf.chance(0.2 * Time.delta() * heat)){
+            Fx.fire.at(x, y, heat);
+        }
     }
 
     @Override

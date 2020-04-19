@@ -20,10 +20,18 @@ public class Fx{
     }),
 
     hairBurn = new Effect(40f, e -> {
-        Draw.z(e.y - 12f);
-        Draw.color(Pal.fire3, Pal.fire1, e.fout());
-        Angles.randLenVectors(e.id, 1, 10f * e.fin(), (x, y) -> {
-            Fill.circle(e.x + x, e.y + y, e.fslope() * 3f);
+        Draw.z(e.y - 10f);
+        Draw.color(e.fin() < 0.5f ? Pal.fire1 : Pal.fire2);
+        Angles.randLenVectors(e.id, 2, 20f * e.fin(), (x, y) -> {
+            Fill.circle(e.x + x, e.y + y, e.fslope() * 2f);
+        });
+    }),
+
+    fire = new Effect(90f, e -> {
+        Draw.z(e.y + 2f);
+        Draw.color(e.fin() < 0.5f ? Pal.fire1 : Pal.fire2);
+        Angles.randLenVectors(e.id, 4, 60f * e.fin() * e.rotation, 90f, 40f, (x, y) -> {
+            Fill.circle(e.x + x, e.y + y, e.fslope() * 3f * e.rotation);
         });
     }),
 
