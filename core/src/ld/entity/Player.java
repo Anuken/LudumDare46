@@ -14,12 +14,13 @@ import static ld.Game.*;
 
 public class Player extends Entity{
     static int index = 0;
-    static final float height = 9f, shotLen = 16f;
+    public static final float height = 9f, shotLen = 16f;
     static final float blinkDuration = 5f;
     static final float pickupRange = 50f, damageDur = 12f, maxCharge = 30f, beamRange = 300f;
 
     public Dir dir = Dir.right;
     public Interval time = new Interval(4);
+    public Weapon weapon = Weapon.beam;
 
     public @Nullable Item item;
     public float heat = 1f, smoothHeat = heat, moveTime, hitTime, charge;
@@ -114,29 +115,7 @@ public class Player extends Entity{
 
         if(Core.input.keyRelease(Bind.shoot)){
             if((charge / maxCharge) > 0.5f){
-                float fract = charge / maxCharge;
-                float damage = fract * 30f;
-                heat -= fract * 0.01f;
-
-                //origin
-                Tmp.v1.trns(angle(), shotLen).add(x, y + height);
-                //destination
-                Tmp.v2.set(Core.input.mouseWorld()).sub(Tmp.v1).setLength(beamRange).add(Tmp.v1);
-
-                //query rect
-                Tmp.r1.set(Math.min(Tmp.v1.x, Tmp.v2.x), Math.min(Tmp.v1.y, Tmp.v2.y), Math.abs(Tmp.v1.x - Tmp.v2.x), Math.abs(Tmp.v1.y - Tmp.v2.y));
-                control.nearby(Tmp.r1).each(e -> e instanceof Enemy, e -> {
-                    Enemy n = (Enemy)e;
-                    e.hitbox(Tmp.r2);
-                    if(Intersector.intersectSegmentRectangle(Tmp.v1, Tmp.v2, Tmp.r2)){
-                        n.damage(damage);
-                        n.move(Tmp.v3.trns(angle(), 10f * fract));
-                    }
-                });
-
-                //effects
-                Fx.chargeShot.at(Tmp.v1.x, Tmp.v1.y, 0, Tmp.v2.cpy());
-                renderer.shake(5f);
+                weapon.shoot(this, charge / maxCharge);
             }
 
             charge = 0;
@@ -155,7 +134,7 @@ public class Player extends Entity{
         }
     }
 
-    float angle(){
+    public float angle(){
         return Angles.angle(x, y + 8, Core.input.mouseWorld().x, Core.input.mouseWorld().y);
     }
 
@@ -195,35 +174,7 @@ public class Player extends Entity{
 
         //attack
         if(charge > 0){
-            float cx = x, cy = y + height, len = shotLen;
-            float sfract = 0.5f;
-            float angle = angle();
-            float f = charge / maxCharge;
-
-            Lines.stroke(2f * f, Pal.fire2);
-            Lines.swirl(cx, cy, len, sfract, -sfract*360f/2f + angle);
-
-            Lines.stroke(3.5f * f, Pal.fire2);
-            Lines.swirl(cx, cy, len, sfract/2f, -sfract*360f/2f/2f + angle);
-
-            Lines.stroke(1f * f, Pal.fire3);
-            Lines.swirl(cx, cy, len, sfract/2f, -sfract*360f/2f/2f + angle);
-
-            Tmp.v1.trns(angle, len);
-
-            Draw.color(Pal.fire2, Pal.fire1, Mathf.absin(3f, 1f));
-
-            Angles.randLenVectors(0, 20, (1f - f) * 80f, (x, y) -> {
-                Fill.poly(cx + Tmp.v1.x + x, cy + Tmp.v1.y + y, 4, 5f * f, angle);
-            });
-
-            Lines.stroke(f * 1f);
-            Lines.lineAngleCenter(cx + Tmp.v1.x, cy + Tmp.v1.y, angle + 90f, 50f * f);
-
-            Lines.stroke(f * 2f);
-            Lines.lineAngleCenter(cx + Tmp.v1.x, cy + Tmp.v1.y, angle + 90f, 20f * f);
-
-            Draw.reset();
+            weapon.draw(this, charge / maxCharge);
         }
     }
 
