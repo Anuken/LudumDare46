@@ -86,7 +86,7 @@ public class Control implements ApplicationListener{
         for(int i = 0; i < 30; i++){
             ItemEntity item = new ItemEntity(Item.stick);
             item.set(player.x + Mathf.range(100f), player.y + Mathf.range(100f));
-            item.add();
+            //item.add();
         }
 
         SnowDemon demon = new SnowDemon();

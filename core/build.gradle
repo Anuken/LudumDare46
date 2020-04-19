@@ -3,12 +3,38 @@ apply plugin: "java"
 sourceCompatibility = 1.8
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
-import com.badlogic.gdx.tools.texturepacker.TexturePacker
+import arc.packer.TexturePacker
+import arc.struct.IntIntMap
+
+import javax.imageio.ImageIO;
+import arc.graphics.*;
 
 sourceSets.main.java.srcDirs = ["src/"]
 
 task pack{
 	doLast{
 		TexturePacker.process("$project.rootDir/core/assets-raw/sprites/", "$project.rootDir/core/assets/sprites/", "sprites.atlas")
+
+        def file = new File("$project.rootDir/core/assets/sprites/sprites.png")
+        def image = ImageIO.read(file)
+
+        def color = new Color()
+        def palette = IntIntMap.with(
+                (int)0x6739ccff, (int)0x333541ff,
+                (int)0x9c57f9ff, (int)0x676971ff
+        )
+
+        for(int x = 0; x < image.width; x++){
+            for(int y = 0; y < image.height; y++){
+                int pixel = image.getRGB(x, y)
+                color.argb8888(pixel)
+                int rgba = color.rgba()
+                if(palette.containsKey(rgba)){
+                    image.setRGB(x, y, color.set(palette.get(rgba, 0)).argb8888())
+                }
+            }
+        }
+
+        ImageIO.write(image, "png", file)
 	}
 }

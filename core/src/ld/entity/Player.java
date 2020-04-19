@@ -58,8 +58,8 @@ public class Player extends Entity{
             dir = Dir.up;
         }
 
-        //breath
-        if(time.get(0, 5f) && !Tmp.v1.isZero()){
+        //track effect
+        if(time.get(0, 4f) && !Tmp.v1.isZero()){
             float s = 1.5f;
             Fx.track.at(x - s * Mathf.sign((tracki++ % 2) - 0.5f), y);
         }
