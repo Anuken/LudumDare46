@@ -8,11 +8,13 @@ import arc.graphics.*;
 import arc.graphics.Texture.*;
 import arc.graphics.g2d.*;
 import arc.graphics.gl.*;
+import arc.math.*;
 import arc.util.*;
 import ld.World.*;
 import ld.entity.*;
 import ld.gfx.*;
 
+import static arc.Core.*;
 import static ld.Game.*;
 
 public class Renderer implements ApplicationListener{
@@ -24,13 +26,15 @@ public class Renderer implements ApplicationListener{
     public Bloom bloom = new Bloom();
     public Color ambient = new Color(0, 0, 0, 0);
 
+    private float shakeIntensity, shaketime;
+
     @Override
     public void init(){
 
         fx.addEffect(new LevelsFilter(){
             @Override
             public void update(){
-                this.saturation = player.smoothHeat;
+                this.saturation = Mathf.clamp(player.smoothHeat*6f);
                 rebind();
             }
         });
@@ -42,6 +46,7 @@ public class Renderer implements ApplicationListener{
         Gl.clear(Gl.depthBufferBit);
 
         Core.camera.position.set(player);
+        updateShake(1f);
         Core.camera.position.add((float)(Core.graphics.getWidth() % zoom) / zoom, (float)(Core.graphics.getHeight() % zoom) / zoom);
 
         Core.camera.update();
@@ -65,6 +70,31 @@ public class Renderer implements ApplicationListener{
         ScreenRecorder.record();
 
         Draw.flush();
+    }
+
+    public void shake(float intensity){
+        shake(intensity, intensity);
+    }
+
+    public void shake(float intensity, float duration){
+        shakeIntensity = Math.max(intensity, shakeIntensity);
+        shaketime = Math.max(shaketime, duration);
+    }
+
+    public void jump(float angle, float intensity){
+        camera.position.add(Tmp.v4.trns(angle, intensity));
+    }
+
+    void updateShake(float scale){
+        if(shaketime > 0){
+            float intensity = shakeIntensity * (settings.getInt("screenshake", 4) / 4f) * scale;
+            camera.position.add(Mathf.range(intensity), Mathf.range(intensity));
+            shakeIntensity -= 0.25f * Time.delta();
+            shaketime -= Time.delta();
+            shakeIntensity = Mathf.clamp(shakeIntensity, 0f, 100f);
+        }else{
+            shakeIntensity = 0f;
+        }
     }
 
     public void drawNormal(Runnable run){

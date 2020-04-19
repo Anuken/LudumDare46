@@ -14,14 +14,15 @@ import static ld.Game.*;
 
 public class Player extends Entity{
     static int index = 0;
+    static final float height = 9f, shotLen = 16f;
     static final float blinkDuration = 5f;
-    static final float pickupRange = 50f;
+    static final float pickupRange = 50f, damageDur = 12f, maxCharge = 30f, beamRange = 300f;
 
     public Dir dir = Dir.right;
     public Interval time = new Interval(4);
 
     public @Nullable Item item;
-    public float heat = 1f, smoothHeat = heat, moveTime;
+    public float heat = 1f, smoothHeat = heat, moveTime, hitTime, charge;
 
     Vec2 movement = new Vec2();
     boolean walking;
@@ -105,13 +106,57 @@ public class Player extends Entity{
             }
         }
 
+        //charge up attack
+        if(Core.input.keyDown(Bind.shoot)){
+            dir = Dir.angle(angle());
+            charge += Time.delta();
+        }
+
+        if(Core.input.keyRelease(Bind.shoot)){
+            if((charge / maxCharge) > 0.5f){
+                float fract = charge / maxCharge;
+                float damage = fract * 30f;
+                heat -= fract * 0.01f;
+
+                //origin
+                Tmp.v1.trns(angle(), shotLen).add(x, y + height);
+                //destination
+                Tmp.v2.set(Core.input.mouseWorld()).sub(Tmp.v1).setLength(beamRange).add(Tmp.v1);
+
+                //query rect
+                Tmp.r1.set(Math.min(Tmp.v1.x, Tmp.v2.x), Math.min(Tmp.v1.y, Tmp.v2.y), Math.abs(Tmp.v1.x - Tmp.v2.x), Math.abs(Tmp.v1.y - Tmp.v2.y));
+                control.nearby(Tmp.r1).each(e -> e instanceof Enemy, e -> {
+                    Enemy n = (Enemy)e;
+                    e.hitbox(Tmp.r2);
+                    if(Intersector.intersectSegmentRectangle(Tmp.v1, Tmp.v2, Tmp.r2)){
+                        n.damage(damage);
+                        n.move(Tmp.v3.trns(angle(), 10f * fract));
+                    }
+                });
+
+                //effects
+                Fx.chargeShot.at(Tmp.v1.x, Tmp.v1.y, 0, Tmp.v2.cpy());
+                renderer.shake(5f);
+            }
+
+            charge = 0;
+        }
+
+        charge = Math.min(charge, maxCharge);
+
+        hitTime -= Time.delta() / damageDur;
+
         //hair fire
         if(Mathf.chance(0.2 * Time.delta() * smoothHeat)){
             Vec2 v = dir.direction;
             float scl = -5f, bs = -2f;
             float range = 1f;
-            Fx.hairBurn.at(player.x + Mathf.range(1f) + Mathf.random(v.x*scl) + v.x*bs, player.y + Mathf.range(1f) + Mathf.random(v.y*scl) + 12 + v.y*bs);
+            Fx.hairBurn.at(player.x + Mathf.range(range) + Mathf.random(v.x*scl) + v.x*bs, player.y + Mathf.range(range) + Mathf.random(v.y*scl) + 12 + v.y*bs);
         }
+    }
+
+    float angle(){
+        return Angles.angle(x, y + 8, Core.input.mouseWorld().x, Core.input.mouseWorld().y);
     }
 
     @Nullable SelectableEntity hovered(){
@@ -147,6 +192,47 @@ public class Player extends Entity{
             Lines.stroke(1f, Color.white);
             Lines.circle(item.x, item.y, rad);
         }
+
+        //attack
+        if(charge > 0){
+            float cx = x, cy = y + height, len = shotLen;
+            float sfract = 0.5f;
+            float angle = angle();
+            float f = charge / maxCharge;
+
+            Lines.stroke(2f * f, Pal.fire2);
+            Lines.swirl(cx, cy, len, sfract, -sfract*360f/2f + angle);
+
+            Lines.stroke(3.5f * f, Pal.fire2);
+            Lines.swirl(cx, cy, len, sfract/2f, -sfract*360f/2f/2f + angle);
+
+            Lines.stroke(1f * f, Pal.fire3);
+            Lines.swirl(cx, cy, len, sfract/2f, -sfract*360f/2f/2f + angle);
+
+            Tmp.v1.trns(angle, len);
+
+            Draw.color(Pal.fire2, Pal.fire1, Mathf.absin(3f, 1f));
+
+            Angles.randLenVectors(0, 20, (1f - f) * 80f, (x, y) -> {
+                Fill.poly(cx + Tmp.v1.x + x, cy + Tmp.v1.y + y, 4, 5f * f, angle);
+            });
+
+            Lines.stroke(f * 1f);
+            Lines.lineAngleCenter(cx + Tmp.v1.x, cy + Tmp.v1.y, angle + 90f, 50f * f);
+
+            Lines.stroke(f * 2f);
+            Lines.lineAngleCenter(cx + Tmp.v1.x, cy + Tmp.v1.y, angle + 90f, 20f * f);
+
+            Draw.reset();
+        }
+    }
+
+    public boolean damagePeriodic(float amount){
+        if(hitTime > 0) return false;
+
+        heat -= amount / 100f;
+        hitTime = 1f;
+        return true;
     }
 
     void drawDirection(Dir dir){
@@ -156,10 +242,13 @@ public class Player extends Entity{
         TextureRegion hands = Core.atlas.find("hands" + dir.suffix);
         TextureRegion leg = Core.atlas.find("player-leg" + dir.suffix);
 
-        Color hairColor = Tmp.c1.set(Pal.fire1).lerp(Pal.fire2, Mathf.absin(5f, 1f)).lerp(Color.scarlet, 0.3f).a(heat);
+        Color hairColor = Tmp.c1.set(Pal.fire1).lerp(Pal.fire2, Mathf.absin(5f, 1f)).lerp(Color.scarlet, 0.31f).a(heat);
+        float ha = heat * 0.6f;
 
         float cx = x, cy = y + region.getHeight()/2f, cw = region.getWidth() * (dir.flip ? -1 : 1), ch = region.getHeight();
 
+        boolean moveHands = walking && charge <= 0f;
+        float handRaise = charge / maxCharge * 2f;
         float amount = 2;
         float mscl = 30f;
         float base = (moveTime / mscl) % 1f;
@@ -175,7 +264,7 @@ public class Player extends Entity{
         }
 
         Runnable drawHair = () -> {
-            Draw.mixcol(hairColor, hairColor.a / 2f);
+            Draw.mixcol(hairColor, ha);
 
             Draw.rect(hair, cx, cy, cw, ch);
 
@@ -203,13 +292,13 @@ public class Player extends Entity{
 
         if(dir != Dir.up){
             boolean cur = base < 0.5f;
-            int scl = Mathf.num(walking) * (dir.y ? 1 : Mathf.sign(dir.direction.x));
+            int scl = Mathf.num(moveHands) * (dir.y ? 1 : Mathf.sign(dir.direction.x));
             if(!dir.y){
-                Draw.rect(base <= 0.5 && walking ? Core.atlas.find("handsh") : hands, cx - Mathf.num(base <= 0.5)*scl, cy, cw, ch);
-                Draw.rect(hands, cx - 6 * dir.direction.x - Mathf.num(base >= 0.5)*scl, cy, cw, ch);
+                Draw.rect(base <= 0.5 && moveHands ? Core.atlas.find("handsh") : hands, cx - Mathf.num(base <= 0.5)*scl, cy + handRaise, cw, ch);
+                Draw.rect(hands, cx - 6 * dir.direction.x - Mathf.num(base >= 0.5)*scl, cy + handRaise, cw, ch);
             }else{
-                Draw.rect(hands, cx - Mathf.num(cur)*scl, cy, cw, ch);
-                Draw.rect(hands, cx - 7 + Mathf.num(!cur)*scl, cy, cw, ch);
+                Draw.rect(hands, cx - Mathf.num(cur)*scl, cy + handRaise, cw, ch);
+                Draw.rect(hands, cx - 7 + Mathf.num(!cur)*scl, cy + handRaise, cw, ch);
             }
         }
 
@@ -218,7 +307,7 @@ public class Player extends Entity{
         }
 
 
-        Draw.mixcol(hairColor, hairColor.a / 2f);
+        Draw.mixcol(hairColor, ha);
         Draw.rect("hair-base" + dir.suffix, cx, cy, cw, ch);
         Draw.reset();
 
@@ -240,9 +329,9 @@ public class Player extends Entity{
             }
 
             //looking up makes no sense in 3D space?
-            o.y = Math.min(o.y, 0f);
+            //o.y = Math.min(o.y, 0f);
 
-            Draw.color(0xff390dff);
+            Draw.color(Tmp.c1.set(0xff390dff), Pal.fire2, charge / maxCharge);
             Draw.rect(eyes, cx + o.x, cy + o.y, cw, ch);
         }
 

@@ -42,6 +42,12 @@ public class Control implements ApplicationListener{
         return out.any() && test.get(out.first()) ? (T)out.first() : null;
     }
 
+    public Array<Entity> nearby(Rect rect){
+        out.clear();
+        quadtree.getIntersect(out, rect);
+        return out;
+    }
+
     public Array<Entity> nearby(float x, float y, float radius){
         out.clear();
         quadtree.getIntersect(out, Tmp.r1.setCentered(x, y, radius * 2f));

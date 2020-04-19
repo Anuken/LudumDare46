@@ -27,6 +27,13 @@ public class Fx{
         });
     }),
 
+    snowAttack = new Effect(30, e -> {
+        Draw.z(e.y + 10f);
+
+        Lines.stroke(e.fout() * 2f);
+        Lines.circle(e.x, e.y, e.fin() * 20f);
+    }),
+
     spark = new Effect(30, e -> {
         Draw.z(e.y - 10f);
         Draw.color(Pal.fire3);
@@ -67,17 +74,33 @@ public class Fx{
         Draw.rect(item.item.region(), Tmp.v1.x, Tmp.v1.y);
     }),
 
-    hitsnow = new Effect(20, e -> {
-        Draw.z(e.y + 10f);
-        Draw.color(Color.white);
+    chargeShot = new Effect(10, e -> {
+        if(!(e.data instanceof Vec2)) return;
+
+        Vec2 pos = e.data();
+        Lines.stroke(e.fout() * 5f);
+        Draw.color(Color.white, Pal.fire2, e.fout());
+        Lines.line(e.x, e.y, (pos.x + e.x)/2f, (pos.y + e.y)/2f);
+        Lines.stroke(e.fout() * 2f);
+        Draw.color(Pal.fire3);
+        Lines.line(e.x, e.y, pos.x, pos.y);
+
+        Angles.randLenVectors(e.id, 8, 50f * e.fin(), (x, y) -> {
+            Fill.circle(e.x + x, e.y + y, e.fout() * 4f);
+        });
+    }),
+
+    hitsnow = new Effect(5, e -> {
+        Draw.z(e.y - 10f);
+        Draw.color(Color.white, Color.gray, e.fin());
         Angles.randLenVectors(e.id, 7, 30f * e.fin(), (x, y) -> {
             Fill.circle(e.x + x, e.y + y, e.fout() * 3f + 1f);
         });
     }),
 
     deathsnow = new Effect(20, e -> {
-        Draw.z(e.y + 10f);
-        Draw.color(Color.white);
+        Draw.z(e.y - 10f);
+        Draw.color(Color.white, Color.gray, e.fin());
         Angles.randLenVectors(e.id, 20, 50f * e.fin(), (x, y) -> {
             Fill.circle(e.x + x, e.y + y, e.fout() * 4f + 1f);
         });

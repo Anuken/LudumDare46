@@ -18,4 +18,16 @@ public enum Dir{
         this.direction = new Vec2(dx, dy);
         y = Math.abs(dy) > 0.01;
     }
+
+    public static Dir angle(float rot){
+        if(rot < 45 || rot > 315){
+            return right;
+        }else if(rot >= 45 && rot < 135){
+            return up;
+        }else if(rot >= 135 && rot < 225){
+            return left;
+        }else{
+            return down;
+        }
+    }
 }

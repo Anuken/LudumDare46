@@ -1,6 +1,7 @@
 package ld;
 
 import arc.*;
+import arc.graphics.*;
 import arc.graphics.g2d.*;
 import arc.math.*;
 import arc.scene.ui.*;
@@ -51,7 +52,8 @@ public class UI implements ApplicationListener{
                     float fract = player.smoothHeat;
                     Draw.color(0x0e0d11ff);
                     Fill.crect(x, y, w, h);
-                    Draw.color(Tmp.c1.set(0xff9940ff), Tmp.c2.set(0xfcd357ff), Mathf.absin(Time.time(), 20f, 1f));
+                    Tmp.c1.set(0xff9940ff).lerp(Tmp.c2.set(0xfcd357ff), Mathf.absin(Time.time(), 20f, 1f)).lerp(Color.white, Mathf.clamp(player.hitTime));
+                    Draw.color(Tmp.c1);
                     Fill.crect(x, y, Mathf.round(w * fract, 4), h);
                     Draw.color();
                 }).grow();
