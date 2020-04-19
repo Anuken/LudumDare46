@@ -265,7 +265,7 @@ public class Player extends Entity{
         if(Core.atlas.isFound(eyes) && blinkTime <= 0f){
             //position
             Tmp.v2.set(x, y + 24);
-            Vec2 o = Tmp.v1.set(hovered() != null ? hovered() : Tmp.v2).sub(Tmp.v2).limit(1f);
+            Vec2 o = Tmp.v1.set(charge > 0 ? Core.input.mouseWorld() : hovered() != null ? Tmp.v3.set(hovered()) : Tmp.v2).sub(Tmp.v2).limit(1f);
 
             if(this.dir.y){
                 if(Math.abs(o.y) > 0.3f){
