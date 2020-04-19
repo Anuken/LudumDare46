@@ -1,20 +1,31 @@
 package ld.entity;
 
+import arc.*;
 import arc.graphics.g2d.*;
 import arc.math.*;
 import arc.struct.*;
 import arc.util.*;
+import ld.*;
 
-import static ld.Game.player;
+import static ld.Game.*;
 
 public class SnowDemon extends Enemy{
     static Array<Drop> drops = Array.with(
         new Drop(Item.frozenKey, 0.2f)
     );
 
+    String name = "snowdemon";
     float attacklerp = 0f;
     {
         health = 40;
+    }
+
+    public float damage(){
+        return 4f;
+    }
+
+    public float speed(){
+        return 0.1f;
     }
 
     @Override
@@ -26,11 +37,11 @@ public class SnowDemon extends Enemy{
     public void update(){
         super.update();
 
-        Tmp.v1.set(player).sub(this).limit(0.1f);
+        Tmp.v1.set(dst2(fire) > dst2(player) ? player : fire).sub(this).limit(speed());
         move(Tmp.v1.x, Tmp.v1.y);
 
         if(within(player, 20f)){
-            if(player.damagePeriodic(3f)){
+            if(player.damagePeriodic(damage())){
                 Fx.snowAttack.at(x, y + 1);
             }
         }
@@ -40,10 +51,11 @@ public class SnowDemon extends Enemy{
 
     @Override
     public void draw(){
+        TextureRegion region = Core.atlas.find(name);
 
         Draw.z(y);
-        float w = 26 * size, h =(Mathf.absin(8f, 6f) + 20 + Mathf.sin(4f, 5f*attacklerp)) * size;
+        float w = region.getWidth() * size, h = (Mathf.absin(8f, 6f) + 20 + Mathf.sin(4f, 5f*attacklerp)) * size;
         Draw.mixcol(hitColor, hitTime);
-        Draw.rect("snowdemon", x, y + h/2, w, h);
+        Draw.rect(region, x, y + h/2, w, h);
     }
 }

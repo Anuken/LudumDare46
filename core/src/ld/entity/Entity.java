@@ -39,6 +39,18 @@ public class Entity implements Position, QuadTreeObject{
         move(v.x, v.y);
     }
 
+    public float interactX(){
+        return x;
+    }
+
+    public float interactY(){
+        return y;
+    }
+
+    public float clipSize(){
+        return 60f;
+    }
+
     public Position top(){
         return new Position(){
             @Override

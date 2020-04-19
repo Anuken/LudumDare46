@@ -1,10 +1,12 @@
 package ld.entity;
 
 import arc.*;
+import arc.graphics.*;
 import arc.graphics.g2d.*;
 import arc.math.*;
 import arc.struct.*;
 import arc.util.*;
+import ld.*;
 import ld.entity.Fx.*;
 import ld.gfx.*;
 
@@ -13,10 +15,18 @@ import static ld.Game.*;
 public class Fire extends Entity{
     static final ObjectMap<Item, Item> recipes = ObjectMap.of(
         Item.frozenKey, Item.key,
-        Item.axe, Item.fireAxe
+        Item.axe, Item.fireAxe,
+        Item.pickaxe, Item.firePickaxe,
+        Item.ore, Item.gem,
+        Item.rock, Item.glowingRock
     );
 
     public float heat, smoothHeat;
+
+    @Override
+    public float clipSize(){
+        return 300f;
+    }
 
     @Override
     public boolean clickable(){
@@ -38,6 +48,7 @@ public class Fire extends Entity{
             });
         }else{
             heat += player.item.flammability;
+            heat = Math.min(heat, 1.4f);
         }
 
         player.item = null;
@@ -88,7 +99,7 @@ public class Fire extends Entity{
             Draw.shader();
         });
 
-        Drawf.light(x, y, (150f + Mathf.absin(6f, 10f)) * smoothHeat, Pal.fire1, smoothHeat);
+        Drawf.light(x, y, (220f + Mathf.absin(6f, 10f)) * smoothHeat + 50f, Color.orange, Mathf.lerp(smoothHeat, 1.1f, 0.4f));
     }
 
     @Override

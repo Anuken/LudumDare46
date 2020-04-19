@@ -6,17 +6,20 @@ import arc.math.geom.*;
 import arc.util.ArcAnnotate.*;
 import arc.util.*;
 import arc.util.noise.*;
-import ld.entity.*;
 import squidpony.squidgrid.mapping.*;
 import squidpony.squidgrid.mapping.styled.*;
 
-import static ld.Game.tsize;
+import static ld.Game.*;
 
 public class World{
     public static final Tile none = new Tile();
     public int width, height;
 
     private Tile[] tiles;
+
+    public World(){
+        none.wall = Block.wall;
+    }
 
     public int t(float f){
         return Mathf.round(f / tsize);
@@ -73,16 +76,12 @@ public class World{
 
                 if(c == ',' || c == '~'){
                     tile.floor = Block.ice;
-
-                    if(Mathf.chance(0.01)){
-                        tile.item = Item.rock;
-                    }
                 }
 
                 if(c == '"'){
                     tile.floor = Block.stonefloor;
 
-                    if(Mathf.chance(0.003)){
+                    if(Mathf.chance(0.003) && !Mathf.within(x, y, width/2f, height/2, 60f)){
                         tile.floor = Block.teleporter;
                         for(Point2 p : Geometry.d8edge){
                             Tile other = tile(x + p.x, y + p.y);
@@ -109,8 +108,60 @@ public class World{
                     tile.wall = Block.door;
                 }
 
+                if(!tile.wall.solid && Mathf.chance(0.002)){
+                    tile.wall = Block.crate;
+                }
+
+                if(!tile.wall.solid && Mathf.chance(0.002)){
+                    tile.wall = Block.crate;
+                }
+
+                if(tile.floor == Block.ice && Mathf.chance(0.01)){
+                    tile.item = Item.frozenStick;
+                }
+
+                if(tile.item == null && tile.wall == Block.none && Mathf.chance(0.01)){
+                    tile.wall = Block.boulder;
+                }
+
                 if(Noise.nnoise(x, y, 30f, 1f) > 0.5f){
                     //tile.floor = Block.snow;
+                }
+            }
+        }
+
+        //spawnpoint clear
+        Geometry.circle(width/2, height/2, 10, (x, y) -> world.tile(x, y).wall = Block.none);
+
+        Simplex noise = new Simplex(Mathf.random(9999));
+
+        for(int x = 0; x < width; x++){
+            for(int y = 0; y < height; y++){
+                Tile tile = tile(x, y);
+
+                if(noise.octaveNoise2D(1, 1, 1.0 / 34.0, x, y) > 0.75){
+                    if(tile.wall.solid){
+                        tile.wall = Block.rockwall;
+                        if(Mathf.chance(0.05)){
+                            tile.wall = Block.orewall;
+                        }
+                    }
+
+                    outer:
+                    for(Point2 p : Geometry.d4){
+                        if(tile(x + p.x, y + p.y).wall.solid){
+                            tile.floor = Block.rockfloor;
+
+                            if(Mathf.chance(0.05)){
+                                tile.item = Item.rock;
+                            }
+
+                            if(Mathf.chance(0.015)){
+                                tile.item = Item.ore;
+                            }
+                            break outer;
+                        }
+                    }
                 }
             }
         }
@@ -130,10 +181,19 @@ public class World{
                     }
                 }
 
-                if(tile.floor == Block.snow && !tile.wall.solid && Mathf.chance(0.01)){
+                if(tile.floor == Block.snow && !tile.wall.solid && Mathf.chance(0.03)){
                     for(Point2 p : Geometry.d4){
                         if(tile(x + p.x, y + p.y).wall == Block.wall){
                             tile.wall = Block.tree;
+                            continue outer;
+                        }
+                    }
+                }
+
+                if(tile.floor == Block.ice && !tile.wall.solid && Mathf.chance(0.005) && !Mathf.within(x, y, width/2, height/2, 90)){
+                    for(Point2 p : Geometry.d4){
+                        if(tile(x + p.x, y + p.y).floor == Block.ice){
+                            tile.wall = Block.icecrystal;
                             continue outer;
                         }
                     }

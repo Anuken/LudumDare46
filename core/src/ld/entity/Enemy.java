@@ -5,6 +5,7 @@ import arc.math.*;
 import arc.math.geom.*;
 import arc.struct.*;
 import arc.util.*;
+import ld.*;
 import ld.entity.Fx.*;
 import ld.gfx.*;
 
@@ -43,6 +44,11 @@ public class Enemy extends Entity{
     @Override
     public boolean clickable(){
         return player.item != null && player.item.damage > 0;
+    }
+
+    @Override
+    public float interactY(){
+        return super.interactY() + 8f;
     }
 
     @Override
@@ -111,7 +117,7 @@ public class Enemy extends Entity{
     public void killed(){
         for(Drop drop : drops()){
             if(Mathf.chance(drop.chance)){
-                ItemEntity.create(drop.item, x, y + 5).velocity.rnd(1f);
+                ItemEntity.create(drop.item, x, y + 5).velocity.rnd(1.5f);
             }
         }
     }

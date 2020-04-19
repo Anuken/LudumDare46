@@ -20,7 +20,10 @@ public class Control implements ApplicationListener{
 
 
     static final Array<Prov<Enemy>> enemies = Array.with(
-    SnowDemon::new
+    SnowDemon::new,
+    SnowArchdemon::new,
+    Crystal::new,
+    SnowTitan::new
     );
 
     State state = State.menu;
@@ -28,11 +31,13 @@ public class Control implements ApplicationListener{
     Array<Entity> entities = new Array<>(), removal = new Array<>(), addition = new Array<>();
     QuadTree<Entity> quadtree;
     Array<Entity> out = new Array<>();
+    Simplex noise = new Simplex();
 
-    public float windTime;
+    public float windTime, snowStrength;
 
     public float lightness = 1f;
     public boolean gameover = false;
+    public float timeCounted;
 
     private float dayTime;
     private Interval times = new Interval(10);
@@ -70,6 +75,8 @@ public class Control implements ApplicationListener{
         removal.clear();
         addition.clear();
         gameover = false;
+        timeCounted = 0;
+        Time.clear();
     }
 
     public void play(){
@@ -82,8 +89,6 @@ public class Control implements ApplicationListener{
 
             world.resize(size, size);
             quadtree = new QuadTree<>(new Rect(0, 0, world.uwidth(), world.uheight()));
-
-            Geometry.circle(size/2, size/2, 10, (x, y) -> world.tile(x, y).wall = Block.none);
 
             player.add();
             player.set(world.uwidth()/2f, world.uheight()/2f - 20f);
@@ -100,12 +105,13 @@ public class Control implements ApplicationListener{
             }
 
             if(debug){
-                SnowDemon demon = new SnowDemon();
+                SnowDemon demon = new Crystal();
                 demon.set(player.x + 30f, player.y);
                 demon.add();
 
-                world.tile(size/2, size/2 - 9).item = Item.axe;
-                world.tile(size/2, size/2 - 5).floor = Block.teleporter;
+                world.tile(size/2, size/2 - 7).item = Item.pickaxe;
+                world.tile(size/2, size/2 - 8).item = Item.axe;
+                world.tile(size/2, size/2 - 5).item = Item.gemTorch;
             }
         });
     }
@@ -162,6 +168,10 @@ public class Control implements ApplicationListener{
             dayTime += Time.delta();
             dayTime %= dayDuration;
 
+            timeCounted += Time.delta();
+
+            snowStrength = (float)(noise.raw_noise_2d(Time.time() / 3000f, 0) + 0.7f) / 1.7f;
+
             float fract = dayTime / dayDuration;
 
             int index = Math.min((int)(fract * dayValues.length), dayValues.length - 1);
@@ -189,7 +199,7 @@ public class Control implements ApplicationListener{
             }
 
             if(player.heat <= 0f){
-                gameover("You've frozen\n\n[lightgray]Make sure you return to your fire to regain heat.");
+                gameover("You've frozen.\n\n[lightgray]Make sure you return to your fire to regain heat.");
             }
         }
 
@@ -201,9 +211,12 @@ public class Control implements ApplicationListener{
     }
 
     void gameover(String reason){
+        int minutes = (int)(timeCounted / 60 / 60);
+
         gameover = true;
         state = State.paused;
         DefaultDialog dialog = new DefaultDialog("[scarlet]Game Over");
+        dialog.cont.add("[orange]You lasted " + minutes + " minutes.").left().row();
         dialog.cont.add(reason).width(400f).wrap();
         dialog.buttons.defaults().size(150f, 40f);
         dialog.buttons.button("Menu", () -> {
@@ -219,9 +232,12 @@ public class Control implements ApplicationListener{
     }
 
     void spawnEnemies(){
-        if(times.get(0, spawnGap) && Enemy.count < maxEnemies && Mathf.chance(spawnChance * (2f - lightness))){
-            int maxAdd = 10;
-            int pad = -1;
+        float hostility = timeCounted / 60f / 10f;
+        int enemiesUsed = (int)(timeCounted / 60f / 60f / 2); //every 2 minutes -> another enemy type
+
+        if(times.get(0, spawnGap - snowStrength * 60 * 2 - hostility) && Enemy.count < maxEnemies && Mathf.chance(spawnChance * (1f + (1f - lightness) * 2f))){
+            int maxAdd = 9;
+            int pad = -2 - (int)((1f - lightness) * 8);
             int width = (int)(Core.camera.width / tsize / 2) + pad;
             int height = (int)(Core.camera.height / tsize / 2) + pad;
             int baseX = world.t(Core.camera.position.x), baseY = world.t(Core.camera.position.y);
@@ -234,7 +250,7 @@ public class Control implements ApplicationListener{
                 int y = !isY ? Mathf.range(height + maxAdd) + baseY : Mathf.random(height, height + maxAdd) * signY + baseY;
 
                 if(!world.tile(x, y).solid() && world.tile(x, y).exists() && !Mathf.within(x * tsize, y * tsize, fire.x, fire.y, 200f)){
-                    Prov<Enemy> prov = enemies.random();
+                    Prov<Enemy> prov = enemies.get(Mathf.clamp(Mathf.random(0, enemiesUsed), 0, enemies.size - 1));
                     Enemy e = prov.get();
                     e.set(x * tsize, y * tsize);
                     e.add();

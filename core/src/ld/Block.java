@@ -1,18 +1,76 @@
 package ld;
 
 import arc.*;
+import arc.func.*;
 import arc.graphics.g2d.*;
 import arc.math.*;
+import arc.math.geom.*;
+import arc.util.ArcAnnotate.*;
 import arc.util.*;
+import ld.entity.Enemy.*;
 import ld.entity.*;
 import ld.gfx.*;
 
 import static ld.Game.*;
 
 public enum Block{
-    none,
+    none{
+        public boolean interactable(Item item){
+            return item != null && item.blockPlaced != null;
+        }
+
+        public void clicked(int x, int y, Item item){
+            world.tile(x, y).wall = item.blockPlaced;
+            if(item.blockPlaced.entityType != null){
+                item.blockPlaced.entityType.get(new Point2(x, y));
+            }
+            player.item = null;
+            Fx.pickup.at(x * tsize, y * tsize);
+        }
+    },
     ice,
-    icewall(false),
+    rockfloor,
+    icewall(false){{
+        breakable = true;
+    }},
+    torchBlock{
+        {
+            entityType = TorchEntity::new;
+            prop = true;
+            shadowsize = 4f;
+        }
+
+        @Override
+        public boolean interactable(Item item){
+            return item.chopChance > 0 || item.mineChance > 0;
+        }
+
+        @Override
+        public void clicked(int x, int y, Item item){
+            world.tile(x, y).wall = none;
+            ItemEntity.create(Item.torch, x * tsize, y * tsize);
+            Fx.pickup.at(x * tsize, y * tsize);
+        }
+    },
+    gemTorchBlock{
+        {
+            entityType = GemTorchEntity::new;
+            prop = true;
+            shadowsize = 4f;
+        }
+
+        @Override
+        public boolean interactable(Item item){
+            return item.chopChance > 0 || item.mineChance > 0;
+        }
+
+        @Override
+        public void clicked(int x, int y, Item item){
+            world.tile(x, y).wall = none;
+            ItemEntity.create(Item.torch, x * tsize, y * tsize);
+            Fx.pickup.at(x * tsize, y * tsize);
+        }
+    },
     door(false){
         {
             solid = true;
@@ -31,19 +89,47 @@ public enum Block{
     snow{{
         trackable = true;
     }},
-    wall(false),
-    crate(false){{
+    wall(false){{
+        drops = new Drop[]{new Drop(Item.rock, 0.1)};
     }},
-    tree(false){
+    boulder(false){{
+        solid = false;
+        drops = new Drop[]{new Drop(Item.rock, 1), new Drop(Item.rock, 0.3), new Drop(Item.coal, 0.15)};
+        offset = 2;
+        shadowsize = 11f;
+        breakable = true;
+        prop = true;
+    }},
+    rockwall(false){{
+        drops = new Drop[]{new Drop(Item.rock, 0.2), new Drop(Item.coal, 0.1)};
+        breakable = true;
+    }},
+    orewall(false){{
+        drops = new Drop[]{new Drop(Item.ore, 1), new Drop(Item.coal, 0.1)};
+        breakable = true;
+    }},
+    crate(false){{
+        drops = new Drop[]{new Drop(Item.key, 0.5), new Drop(Item.stick, 0.3), new Drop(Item.ore, 0.5)};
+        breakable = true;
+    }},
+    icecrystal{
         {
             prop = true;
             solid = false;
-            offset = 3;
+            offset = 4;
+            shadowsize = 17;
+            breakable = true;
+            drops = new Drop[]{new Drop(Item.frozenKey, 0.9), new Drop(Item.frozenKey, 0.5), new Drop(Item.gem, 0.3), new Drop(Item.rock, 0.5)};
         }
-
-        @Override
-        public void drawShadow(int x, int y){
-            Drawf.shadow(x * tsize, y * tsize, 15f);
+    },
+    tree(false){
+        {
+            shadowsize = 15;
+            breakable = true;
+            prop = true;
+            solid = false;
+            offset = 3;
+            drops = new Drop[]{new Drop(Item.stick, 1f), new Drop(Item.stick, 0.7f), new Drop(Item.log, 0.6f), new Drop(Item.log, 0.4f)};
         }
 
         @Override
@@ -61,10 +147,7 @@ public enum Block{
                     Fx.chop.at(x * tsize + Mathf.range(4f), y * tsize + i * 9f + Mathf.range(4f));
                 }
                 renderer.shake(6f);
-                int amount = Mathf.random(1, 4);
-                for(int i = 0; i < amount; i++){
-                    ItemEntity.create(Mathf.chance(0.6) ? Item.stick : Item.log, x * tsize, y * tsize).velocity.rnd(Mathf.random(4f));
-                }
+                drops(x, y);
                 world.tile(x, y).wall = none;
             }
         }
@@ -75,8 +158,10 @@ public enum Block{
     TextureRegion[] regions;
 
     public int height;
-    public boolean trackable, solid, floor = true, prop;
-    public float offset;
+    public boolean trackable, solid, floor = true, prop, breakable = false;
+    public float offset, shadowsize = 15;
+    public Drop[] drops = {};
+    public @Nullable Func<Point2, TileEntity> entityType;
 
     private boolean init = false;
 
@@ -92,11 +177,35 @@ public enum Block{
     }
 
     public boolean interactable(Item item){
+        if(breakable){
+            return item.mineChance > 0;
+        }
         return false;
     }
 
     public void clicked(int x, int y, Item item){
+        if(breakable){
+            Fx.mine.at(x * tsize + Mathf.range(8f), y * tsize + 6f + Mathf.range(8f));
+            player.attackTime = 1f;
+            renderer.shake(2f);
+            if(Mathf.chance(item.mineChance)){
+                for(int i = 0; i < 6; i++){
+                    Fx.mine.at(x * tsize + Mathf.range(10f), y * tsize + i * 3f + Mathf.range(6f));
+                }
+                renderer.shake(6f);
 
+                drops(x, y);
+                world.tile(x, y).wall = none;
+            }
+        }
+    }
+
+    void drops(int x, int y){
+        for(Drop drop : drops){
+            if(Mathf.chance(drop.chance)){
+                ItemEntity.create(drop.item, x * tsize, y * tsize).velocity.rnd(Mathf.random(4f));
+            }
+        }
     }
 
     private void checkInit(){
@@ -125,7 +234,9 @@ public enum Block{
     }
 
     public void drawShadow(int x, int y){
-        if(solid){
+        if(prop){
+            Drawf.shadow(x * tsize, y * tsize, shadowsize);
+        }else if(solid){
             Draw.rect("wallshadow", x * tsize, y * tsize);
         }
     }

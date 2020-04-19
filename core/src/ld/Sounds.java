@@ -5,17 +5,28 @@ import arc.audio.*;
 
 public enum Sounds{
     ;
+
     private Sound sound;
 
     Sounds(){
-        sound = Core.audio.newSound(Core.files.internal("sounds/" + name() + ".ogg").exists() ? Core.files.internal("sounds/" + name() + ".ogg") : Core.files.internal("sounds/" + name() + ".wav"));
+
+    }
+
+    private void checkInit(){
+        if(sound == null){
+            sound = Core.audio.newSound(Core.files.internal("sounds/" + name() + ".ogg").exists() ? Core.files.internal("sounds/" + name() + ".ogg") : Core.files.internal("sounds/" + name() + ".wav"));
+        }
     }
 
     public void play(){
+        checkInit();
+
         sound.play();
     }
 
     public void play(float x, float y){
+        checkInit();
+
         sound.at(x, y);
     }
 

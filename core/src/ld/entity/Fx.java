@@ -6,9 +6,8 @@ import arc.graphics.g2d.*;
 import arc.math.*;
 import arc.math.geom.*;
 import arc.util.*;
+import ld.*;
 import ld.gfx.*;
-
-import static ld.Game.*;
 
 public class Fx{
     public static final Effect
@@ -71,7 +70,7 @@ public class Fx{
     }),
 
     track = new Effect(100f, e -> {
-        Draw.z(lFloor - 0.1f);
+        Draw.z(e.x + 800f);
         Draw.alpha(e.fout(Interpolation.slowFast));
         Draw.color(0xcbdbfcff);
         Fill.square(e.x, e.y, 1f);
@@ -137,6 +136,14 @@ public class Fx{
     chop = new Effect(25f, e -> {
         Draw.z(e.y - 10f);
         Draw.color(Pal.woodLight, Pal.woodDark, e.fin() <= 0.5f ? 1f : 0f);
+        Angles.randLenVectors(e.id, 7, 30f * e.fin(), (x, y) -> {
+            Fill.circle(e.x + x, e.y + y, e.fout() * 3f + 1f);
+        });
+    }),
+
+    mine = new Effect(25f, e -> {
+        Draw.z(e.y - 15f);
+        Draw.color(0x605682ff);
         Angles.randLenVectors(e.id, 7, 30f * e.fin(), (x, y) -> {
             Fill.circle(e.x + x, e.y + y, e.fout() * 3f + 1f);
         });

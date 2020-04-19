@@ -4,6 +4,7 @@ import arc.graphics.g2d.*;
 import arc.math.*;
 import arc.math.geom.*;
 import arc.util.*;
+import ld.*;
 import ld.entity.Fx.*;
 
 import static ld.Game.player;
@@ -23,7 +24,7 @@ public class ItemEntity extends Entity{
 
     @Override
     public boolean clickable(){
-        return player.item == null;
+        return player.item == null || Recipe.has(player.item, item);
     }
 
     @Override
@@ -42,26 +43,43 @@ public class ItemEntity extends Entity{
 
     @Override
     public void clicked(){
-        remove();
-        Fx.pickup.at(this);
-        Fx.itemMove.at(x, y, 0, new ItemMove(new Position(){
-            @Override
-            public float getX(){
-                return player.x;
-            }
+        if(player.item != null && Recipe.has(player.item, item)){
+            Fx.itemMove.at(player.x, player.y + 6, 0, new ItemMove(this, player.item));
 
-            @Override
-            public float getY(){
-                return player.y + 6;
-            }
-        }, item));
-        Time.run(Fx.itemMove.lifetime, () -> {
-            if(player.item != null){
-                create(item, player.x, player.y + 4f);
-            }else{
-                player.item = item;
-            }
-        });
+            Time.run(Fx.pickup.lifetime*0.75f, () -> Fx.pickup.at(this));
+
+            //craft
+            Item result = Recipe.get(player.item, item).result;
+            Time.run(Fx.pickup.lifetime, () -> {
+                this.item = result;
+            });
+
+            player.item = null;
+        }else{
+            remove();
+
+            Fx.pickup.at(this);
+            Fx.itemMove.at(x, y, 0, new ItemMove(new Position(){
+                @Override
+                public float getX(){
+                    return player.x;
+                }
+
+                @Override
+                public float getY(){
+                    return player.y + 6;
+                }
+            }, item));
+            Time.run(Fx.itemMove.lifetime, () -> {
+                if(player.item != null){
+                    create(item, player.x, player.y + 4f);
+                }else{
+                    player.item = item;
+                }
+            });
+        }
+
+
     }
 
     @Override

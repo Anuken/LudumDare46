@@ -97,7 +97,7 @@ public class Player extends Entity{
         heat -= (1f + control.windStrength()) / heatDuration;
 
         //recharge of heat from nearby fires
-        if(within(fire, 30f)){
+        if(within(fire, 40f)){
             heat = 1f;//Math.max(heat, fire.heat);
         }
 
@@ -109,7 +109,7 @@ public class Player extends Entity{
             Entity item = hovered();
             if(item != null){
                 item.clicked();
-            }else if(this.item != null && hoverTile().wall.interactable(this.item)){
+            }else if(this.item != null && hoverTile().wall.interactable(this.item) && withinTile()){
                 hoverTile().wall.clicked(world.t(Core.input.mouseWorldX()), world.t(Core.input.mouseWorldY()), this.item);
             }
         }
@@ -171,8 +171,8 @@ public class Player extends Entity{
     }
 
     @Nullable Entity hovered(){
-        Entity entity = control.closest(Core.input.mouseWorld().x, Core.input.mouseWorld().y, 12f, e -> e.clickable());
-        if(entity != null && !entity.within(player, pickupRange)){
+        Entity entity = control.closest(Core.input.mouseWorld().x, Core.input.mouseWorld().y, 13f, e -> e.clickable());
+        if(entity != null && !Mathf.within(entity.interactX(), entity.interactY(), player.x, player.y, pickupRange)){
             return null;
         }
         return entity;
@@ -182,14 +182,12 @@ public class Player extends Entity{
         return world.tilew(Core.input.mouseWorldX(), Core.input.mouseWorldY());
     }
 
-
-
     @Override
     public void draw(){
         super.draw();
         Draw.z(y);
 
-        Drawf.light(x, y + height, 100f * smoothHeat + 50f, Pal.fire2, smoothHeat/2f + 0.05f);
+        Drawf.light(x, y + height, 150f * smoothHeat + 50f, Color.orange, smoothHeat + 0.05f);
 
         renderer.beginOutline();
         drawDirection(dir);
@@ -212,10 +210,10 @@ public class Player extends Entity{
             float rad = 6f + Mathf.absin(4f, 2f);
 
             Lines.stroke(3f, Color.black);
-            Lines.circle(item.x, item.y, rad);
+            Lines.circle(item.interactX(), item.interactY(), rad);
             Lines.stroke(1f, Color.white);
-            Lines.circle(item.x, item.y, rad);
-        }else if(this.item != null && hoverTile().wall.interactable(this.item)){
+            Lines.circle(item.interactX(), item.interactY(), rad);
+        }else if(this.item != null && hoverTile().wall.interactable(this.item) && withinTile()){
             float rad = 7f + Mathf.absin(4f, 2f);
 
             float cx = world.t(Core.input.mouseWorldX()) * tsize, cy = world.t(Core.input.mouseWorldY()) * tsize;
@@ -224,6 +222,18 @@ public class Player extends Entity{
             Lines.circle(cx, cy, rad);
             Lines.stroke(1f, Color.white);
             Lines.circle(cx, cy, rad);
+        }
+
+        //fire indicator when low on heat
+        if(heat < 0.5f){
+            float len = 19f;
+            Tmp.v1.set(fire).sub(x, y + 8f).limit(len);
+
+            Draw.color(Color.black);
+            Fill.poly(x + Tmp.v1.x, y + 8 + Tmp.v1.y, 3, 5f, Tmp.v1.angle());
+
+            Draw.color(Pal.fire1);
+            Fill.poly(x + Tmp.v1.x, y + 8 + Tmp.v1.y, 3, 3f, Tmp.v1.angle());
         }
 
         Draw.reset();
@@ -237,6 +247,10 @@ public class Player extends Entity{
         return true;
     }
 
+    public boolean withinTile(){
+        return Mathf.within(x, y + 8f, world.t(Core.input.mouseWorldX()) * tsize, world.t(Core.input.mouseWorldY()) * tsize, pickupRange);
+    }
+
     void drawDirection(Dir dir){
         TextureRegion region = Core.atlas.find("player" + dir.suffix);
         TextureRegion hair = Core.atlas.find("hair" + dir.suffix);
@@ -245,7 +259,6 @@ public class Player extends Entity{
         TextureRegion leg = Core.atlas.find("player-leg" + dir.suffix);
 
         Color hairColor = Tmp.c1.set(Color.white);
-        float ha = heat * 0.6f;
 
         float cx = x, cy = y + region.getHeight()/2f, cw = region.getWidth() * (dir.flip ? -1 : 1), ch = region.getHeight();
 
@@ -316,7 +329,10 @@ public class Player extends Entity{
         if(Core.atlas.isFound(eyes) && blinkTime <= 0f){
             //position
             Tmp.v2.set(x, y + 24);
-            Vec2 o = Tmp.v1.set(hovered() != null ? Tmp.v3.set(hovered()) : Tmp.v2).sub(Tmp.v2).limit(1f);
+            Vec2 o = Tmp.v1.set(
+                hovered() != null ? Tmp.v3.set(hovered()) :
+                item != null && hoverTile().wall.interactable(item) && withinTile() ? Tmp.v3.set(world.t(Core.input.mouseWorldX()) * tsize, world.t(Core.input.mouseWorldY()) * tsize) :
+                Tmp.v2).sub(Tmp.v2).limit(1f);
 
             if(this.dir.y){
                 if(Math.abs(o.y) > 0.3f){

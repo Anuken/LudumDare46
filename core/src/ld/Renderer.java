@@ -24,7 +24,7 @@ public class Renderer implements ApplicationListener{
     public FrameBuffer lights = new FrameBuffer(2, 2);
     public FxProcessor fx = new FxProcessor();
     public Bloom bloom = new Bloom();
-    public Color ambient = new Color(0, 0, 0, 0);
+    public Color ambient = new Color(0.08f, 0.05f, 0.1f, 0);
 
     private float shakeIntensity, shaketime;
 
@@ -52,7 +52,7 @@ public class Renderer implements ApplicationListener{
         Core.camera.update();
         Draw.proj(Core.camera);
 
-        ambient.a = control.lightness;
+        ambient.a = control.lightness* 0.6f;
 
         if(control.playing()){
             buffer.begin(Color.clear);
@@ -133,8 +133,8 @@ public class Renderer implements ApplicationListener{
     void drawTiles(Intc2 drawer){
         int padding = 2;
         Core.camera.bounds(Tmp.r1).grow(padding * tsize, padding * tsize * 2);
-        int x1 = Math.max(world.t(Tmp.r1.x), 0), x2 = Math.min(world.t(Tmp.r1.x + Tmp.r1.width), world.width);
-        int y1 = Math.max(world.t(Tmp.r1.y), 0), y2 = Math.min(world.t(Tmp.r1.y + Tmp.r1.height), world.height);
+        int x1 = world.t(Tmp.r1.x), x2 = world.t(Tmp.r1.x + Tmp.r1.width);
+        int y1 = world.t(Tmp.r1.y), y2 = world.t(Tmp.r1.y + Tmp.r1.height);
 
         for(int x = x1; x <= x2; x++){
             for(int y = y1; y <= y2; y++){
@@ -169,10 +169,8 @@ public class Renderer implements ApplicationListener{
             tile.wall.drawShadow(x, y);
         });
 
-        float clipSize = 90;
-
         for(Entity e : control.entities){
-            if(!camera.bounds(Tmp.r1).overlaps(Tmp.r2.setCentered(e.x, e.y, clipSize))){
+            if(!camera.bounds(Tmp.r1).overlaps(Tmp.r2.setCentered(e.x, e.y, e.clipSize()))){
                 continue;
             }
 
@@ -197,7 +195,7 @@ public class Renderer implements ApplicationListener{
 
         //entities
         for(Entity e : control.entities){
-            if(!camera.bounds(Tmp.r1).overlaps(Tmp.r2.setCentered(e.x, e.y, clipSize))){
+            if(!camera.bounds(Tmp.r1).overlaps(Tmp.r2.setCentered(e.x, e.y, e.clipSize()))){
                 continue;
             }
 
