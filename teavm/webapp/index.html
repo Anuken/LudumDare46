@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
     <script type="text/javascript" charset="utf-8" src="app.js"></script>
   </head>
-  <body onload="main()" style="margin: 0; padding: 0; overflow: hidden; background-color:black;">
+  <body onload="main()" onkeydown="preventUseOfDefaultKeys(event);" style="margin: 0; padding: 0; overflow: hidden; background-color:black;">
     <div>
       <canvas id="main-canvas" width="800" height="600" oncontextmenu="return false;"></canvas>
     </div>
@@ -16,7 +16,7 @@
         evt.preventDefault();
         evt.stopPropagation();
         evt.target.style.cursor = 'default';
-        window.focus(); 
+        window.focus();
       }
 
       function handleMouseUp(evt) {
@@ -32,8 +32,8 @@
    		 }
  	  }
  	  
- 	  document.getElementById('main-canvas').addEventListener('mousedown', handleMouseDown, false);
-      document.getElementById('main-canvas').addEventListener('mouseup', handleMouseUp, false);
+ 	  document.addEventListener('mousedown', handleMouseDown, true);
+      document.addEventListener('mouseup', handleMouseUp, true);
 </script>
   </body>
 </html>
