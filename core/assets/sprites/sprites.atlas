@@ -603,7 +603,7 @@ slider-knob-down
   index: -1
 slider-knob-over
   rotate: false
-  xy: 602, 986
+  xy: 33, 361
   size: 5, 10
   orig: 5, 10
   offset: 0, 0

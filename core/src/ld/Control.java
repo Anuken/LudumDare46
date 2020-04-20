@@ -1,6 +1,7 @@
 package ld;
 
 import arc.*;
+import arc.audio.*;
 import arc.func.*;
 import arc.input.*;
 import arc.math.*;
@@ -17,6 +18,9 @@ import static ld.Game.*;
 
 public class Control implements ApplicationListener{
     static final float[] dayValues = {1f, 1f, 1f, 1f, 0f, 0f, 0f, 1f};
+    static final String[] musicNames = {"1", "2"};
+
+    Music[] loadedMusic;
 
 
     static final Array<Prov<Enemy>> enemies = Array.with(
@@ -44,6 +48,20 @@ public class Control implements ApplicationListener{
 
     public float windStrength(){
         return Noise.nnoise(Time.time(), 0f, 50f, 1f);
+    }
+
+    public Control(){
+        loadedMusic = new Music[musicNames.length];
+        for(int i = 0; i < loadedMusic.length; i++){
+            loadedMusic[i] = Core.audio.newMusic(Core.files.internal("music/" + musicNames[i] + ".ogg"));
+            loadedMusic[i].setCompletionListener(m -> {
+                int index = Structs.indexOf(loadedMusic, m);
+                int next = (index + 1) % loadedMusic.length;
+                Core.app.post(() -> loadedMusic[next].play());
+            });
+        }
+
+        loadedMusic[Mathf.random(0, loadedMusic.length - 1)].play();
     }
 
     @SuppressWarnings("unchecked")

@@ -16,7 +16,7 @@ public class Game extends ApplicationCore{
     public static final float speed = 2.7f;
 
     public static final float heatDuration = 60 * 60 * 2.5f, dayDuration = 60 * 60f * 3f, spawnGap = 60 * 6, spawnChance = 0.5f, maxEnemies = 200, teleportDur = 70f, fireDuration = 3f * 60f * 60f;
-    public static final int worldSize = 200;
+    public static final int worldSize = debug ? 200 : 340;
 
     public static BitmapFont font;
     public static SortedSpriteBatch sbatch;

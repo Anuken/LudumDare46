@@ -20,6 +20,6 @@ public class DefaultDialog extends Dialog{
         dialog.keyDown(KeyCode.escape, dialog::hide);
 
         dialog.titleTable.add().growX();
-        dialog.titleTable.button("x", dialog::hide).size(40f).right();
+        dialog.titleTable.button("[scarlet]x", dialog::hide).size(40f).marginBottom(14f).right();
     }
 }

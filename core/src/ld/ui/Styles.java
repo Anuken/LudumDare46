@@ -18,7 +18,7 @@ import static ld.ui.Tex.*;
 
 public class Styles{
     public static final Drawable
-    dialogDim = white.tint(0, 0, 0, 0.45f),
+    dialogDim = white.tint(0, 0, 0, 0.7f),
     blankSelect = white.tint(1, 1, 1, 0.4f);
 
     public static final ButtonStyle
@@ -76,7 +76,7 @@ public class Styles{
     defaultWindow = new DialogStyle(){{
         titleFont = Game.font;
         background = window;
-        titleFontColor = Color.orange;
+        titleFontColor = Color.lightGray;
     }},
     dialog = new DialogStyle(){{
         stageBackground = dialogDim;

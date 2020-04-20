@@ -9,8 +9,8 @@ import static ld.Game.*;
 
 public class Snow{
     static Rand rand = new Rand();
-    static final int amount = 170;
-    static final int amountAdded = 200;
+    static final int amount = 110;
+    static final int amountAdded = 140;
     static float time;
 
     public static void draw(){
