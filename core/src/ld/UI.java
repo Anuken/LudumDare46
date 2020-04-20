@@ -25,12 +25,13 @@ public class UI implements ApplicationListener{
         settings = new SettingsDialog();
         keys = new KeybindDialog();
 
+        /*
         Core.settings.getBoolOnce("controls", () -> Core.app.post(() -> {
             Dialog d = new Dialog("Attention!");
             d.cont.add(infoText).width(500f).wrap();
             d.buttons.button("OK", d::hide);
             d.show();
-        }));
+        }));*/
 
         DefaultDialog.addCloseButton(settings);
         DefaultDialog.addCloseButton(keys);
