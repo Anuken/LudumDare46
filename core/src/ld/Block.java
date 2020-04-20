@@ -110,7 +110,7 @@ public enum Block{
         breakable = true;
     }},
     crate(false){{
-        drops = new Drop[]{new Drop(Item.key, 0.5), new Drop(Item.stick, 0.3), new Drop(Item.ore, 0.5)};
+        drops = new Drop[]{/*new Drop(Item.key, 0.5), this somehow is null and crashes. JS bug with things named 'key'?*/ new Drop(Item.stick, 0.3), new Drop(Item.ore, 0.5)};
         breakable = true;
     }},
     icecrystal{
