@@ -14,6 +14,8 @@ public class ItemEntity extends Entity{
     public Vec2 velocity = new Vec2();
 
     public ItemEntity(Item item){
+        if(item == null) return;
+
         this.item = item;
     }
 
@@ -91,6 +93,11 @@ public class ItemEntity extends Entity{
 
     @Override
     public void draw(){
+        if(item == null){
+            remove();
+            return;
+        }
+
         super.draw();
         Draw.z(y + 2);
         Draw.rect(item.region(), x, y);
