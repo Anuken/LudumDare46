@@ -10,6 +10,7 @@ import arc.scene.ui.*;
 import arc.scene.ui.layout.*;
 import arc.util.*;
 import ld.Control.*;
+import ld.gfx.*;
 import ld.ui.*;
 
 import static ld.Game.*;
@@ -23,6 +24,13 @@ public class UI implements ApplicationListener{
     public void init(){
         settings = new SettingsDialog();
         keys = new KeybindDialog();
+
+        Core.settings.getBoolOnce("controls", () -> Core.app.post(() -> {
+            Dialog d = new Dialog("Attention!");
+            d.cont.add(infoText).width(500f).wrap();
+            d.buttons.button("OK", d::hide);
+            d.show();
+        }));
 
         DefaultDialog.addCloseButton(settings);
         DefaultDialog.addCloseButton(keys);
@@ -63,7 +71,8 @@ public class UI implements ApplicationListener{
             t.visible(Game.control::menu);
             t.center();
 
-            t.table(c -> {
+            t.table(Tex.button, c -> {
+                c.margin(4);
                 c.defaults().size(200f, 50f);
 
                 c.button("Play", Game.control::play).row();
@@ -121,8 +130,28 @@ public class UI implements ApplicationListener{
     @Override
     public void update(){
 
+        if(!control.playing()){
+            Draw.proj().setOrtho(0, 0, Core.graphics.getWidth(), Core.graphics.getHeight());
+            Draw.flush();
+            Draw.color();
+            TextureRegion logo = Core.atlas.find("logo");
+            int scale = 4;
+            Draw.mixcol(Pal.fire1, 1f);
+            Draw.rect(logo, Core.graphics.getWidth()/2f - 8, Core.graphics.getHeight() - logo.getHeight()/2f*scale - 8, logo.getWidth() * scale, logo.getHeight() * scale);
+
+            Draw.mixcol(Pal.fire2, 1f);
+            Draw.rect(logo, Core.graphics.getWidth()/2f, Core.graphics.getHeight() - logo.getHeight()/2f*scale, logo.getWidth() * scale, logo.getHeight() * scale);
+            Draw.reset();
+        }
+
         Core.scene.act();
         Core.scene.draw();
+
+        if(!control.playing()){
+            Draw.color();
+            Draw.proj(Core.camera);
+            Draw.rect(renderer.buffer);
+        }
 
         Draw.flush();
     }

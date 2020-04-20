@@ -31,8 +31,8 @@ public class Snow{
             float scl = rand.random(0.5f, 1f);
             float scl2 = rand.random(0.5f, 1f);
             float sscl = rand.random(0.4f, 1f);
-            float x = (rand.random(-300, world.width * tsize + 300) + time * xspeed * scl2);
-            float y = (rand.random(-300, world.height * tsize + 300) - time * yspeed * scl);
+            float x = (rand.random(-800, world.width * tsize + 800) + time * xspeed * scl2);
+            float y = (rand.random(-800, world.height * tsize + 800) - time * yspeed * scl);
 
             if(i == rounded - 1){
                 sscl *= total % 1f;

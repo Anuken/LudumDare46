@@ -12,8 +12,8 @@ buildscript{
     dependencies{
         classpath 'com.android.tools.build:gradle:3.3.1'
         classpath 'com.github.Anuken:teavm-gradle-plugin:e28fd8487c68d02b557c61fe05e5aeb592429f8a'
-        classpath "com.github.Anuken.Arc:packer:09ca67fcca0b7238ec58423233a6e3a31f7b73af"
-        classpath "com.github.Anuken.Arc:arc-core:09ca67fcca0b7238ec58423233a6e3a31f7b73af"
+        classpath "com.github.Anuken.Arc:packer:28647bc1d10bbf6ec311f4d278c3fbde03e8373f"
+        classpath "com.github.Anuken.Arc:arc-core:28647bc1d10bbf6ec311f4d278c3fbde03e8373f"
     }
 }
 

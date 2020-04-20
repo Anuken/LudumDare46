@@ -42,7 +42,7 @@ public class Renderer implements ApplicationListener{
 
     @Override
     public void update(){
-        Core.graphics.clear(Color.black);
+        Core.graphics.clear(Tmp.c1.set(0xd8dff7ff));
         Gl.clear(Gl.depthBufferBit);
 
         Core.camera.position.set(player);
@@ -65,6 +65,10 @@ public class Renderer implements ApplicationListener{
             fx.end();
             fx.applyEffects();
             fx.render();
+        }else{
+            buffer.begin(Color.clear);
+            Snow.draw();
+            buffer.end();
         }
 
         ScreenRecorder.record();

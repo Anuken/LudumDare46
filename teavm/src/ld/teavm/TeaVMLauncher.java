@@ -4,7 +4,6 @@ import arc.backend.teavm.*;
 import arc.backend.teavm.TeaApplication.*;
 import ld.*;
 import org.teavm.jso.browser.*;
-import org.teavm.jso.dom.events.*;
 import org.teavm.jso.dom.html.*;
 
 public class TeaVMLauncher{
@@ -15,19 +14,20 @@ public class TeaVMLauncher{
         TeaApplicationConfig config = new TeaApplicationConfig();
         config.canvas = (HTMLCanvasElement)Window.current().getDocument().getElementById("main-canvas");
 
+        /*
         Window.current().addEventListener("resize", new EventListener<Event>(){
             @Override
             public void handleEvent(Event evt){
                 scaleCanvas();
             }
-        });
+        });*/
 
         new TeaApplication(new Game(), config).start();
 
-        scaleCanvas();
+        //scaleCanvas();
     }
 
-    static void scaleCanvas() {
+    static void scaleCanvas(){
         HTMLCanvasElement element = (HTMLCanvasElement)Window.current().getDocument().getElementById("main-canvas");
         int innerWidth = Window.current().getInnerWidth();
         int innerHeight = Window.current().getInnerHeight();

@@ -59,7 +59,9 @@ public class World{
             addDoors(100, true);
         }};
 
-        out = gen.generate(TilesetType.CORNER_CAVES);
+        TilesetType[] valid = {TilesetType.CORNER_CAVES, TilesetType.SIMPLE_CAVES};
+
+        out = gen.generate(Structs.random(valid));
         //display(DungeonUtility.hashesToLines(out));
 
         //char[][] out = gen.generate();

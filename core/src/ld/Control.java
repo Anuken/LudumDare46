@@ -6,6 +6,7 @@ import arc.func.*;
 import arc.input.*;
 import arc.math.*;
 import arc.math.geom.*;
+import arc.scene.ui.*;
 import arc.struct.*;
 import arc.util.ArcAnnotate.*;
 import arc.util.*;
@@ -45,6 +46,7 @@ public class Control implements ApplicationListener{
 
     private float dayTime;
     private Interval times = new Interval(10);
+    private boolean played, tutorialed;
 
     public float windStrength(){
         return Noise.nnoise(Time.time(), 0f, 50f, 1f);
@@ -60,8 +62,6 @@ public class Control implements ApplicationListener{
                 Core.app.post(() -> loadedMusic[next].play());
             });
         }
-
-        loadedMusic[Mathf.random(0, loadedMusic.length - 1)].play();
     }
 
     @SuppressWarnings("unchecked")
@@ -131,6 +131,20 @@ public class Control implements ApplicationListener{
                 world.tile(size/2, size/2 - 8).item = Item.axe;
                 world.tile(size/2, size/2 - 5).item = Item.gemTorch;
             }
+
+            Core.app.post(() -> {
+                if(!tutorialed){
+                    state = State.paused;
+                    Dialog d = new Dialog("Tutorial");
+                    d.cont.add(tutorial).width(500f).wrap();
+                    d.buttons.button("OK", () -> {
+                        d.hide();
+                        state = State.playing;
+                    });
+                    d.show();
+                    tutorialed = true;
+                }
+            });
         });
     }
 
@@ -173,6 +187,11 @@ public class Control implements ApplicationListener{
     @Override
     public void update(){
         Time.updateGlobal();
+
+        if(Core.input.keyDown(KeyCode.mouseLeft) && !played){
+            loadedMusic[Mathf.random(0, loadedMusic.length - 1)].play();
+            played = true;
+        }
 
         if(state == State.playing){
             Time.update();
