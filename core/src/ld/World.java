@@ -40,17 +40,8 @@ public class World{
 
         for(int i = 0; i < tiles.length; i++){
             tiles[i] = new Tile();
-
-            tiles[i].floor = Block.snow;
-
-            if(Mathf.chance(0.1)){
-                //tiles[i].wall = Block.wall;
-            }
         }
 
-        char[][] out;
-
-        //FlowingCaveGenerator
         DungeonGenerator gen = new DungeonGenerator(width, height){{
             addDoors(1, false);
             addWater(30);
@@ -61,10 +52,8 @@ public class World{
 
         TilesetType[] valid = {TilesetType.CORNER_CAVES, TilesetType.SIMPLE_CAVES};
 
-        out = gen.generate(Structs.random(valid));
-        //display(DungeonUtility.hashesToLines(out));
+        char[][] out = gen.generate(Structs.random(valid));
 
-        //char[][] out = gen.generate();
         for(int x = 0; x < width; x++){
             for(int y = 0; y < height; y++){
                 Tile tile = tile(x, y);
@@ -124,10 +113,6 @@ public class World{
 
                 if(tile.item == null && tile.wall == Block.none && Mathf.chance(0.01)){
                     tile.wall = Block.boulder;
-                }
-
-                if(Noise.nnoise(x, y, 30f, 1f) > 0.5f){
-                    //tile.floor = Block.snow;
                 }
             }
         }
@@ -236,7 +221,7 @@ public class World{
     }
 
     public static class Tile{
-        public Block floor = Block.ice;
+        public Block floor = Block.snow;
         public Block wall = Block.none;
         public @Nullable Item item;
 
