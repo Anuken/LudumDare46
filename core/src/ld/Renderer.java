@@ -44,6 +44,7 @@ public class Renderer implements ApplicationListener{
     public void update(){
         Core.graphics.clear(Tmp.c1.set(0xd8dff7ff));
         Gl.clear(Gl.depthBufferBit);
+        Draw.sort(false);
 
         Core.camera.position.set(player);
         updateShake(1f);
@@ -73,6 +74,7 @@ public class Renderer implements ApplicationListener{
 
         ScreenRecorder.record();
 
+        Draw.sort(false);
         Draw.flush();
     }
 
@@ -155,7 +157,7 @@ public class Renderer implements ApplicationListener{
         Core.batch = sbatch;
         Draw.reset();
 
-        Drawf.sort(false);
+        Draw.sort(false);
         //tiles - floor
         drawTiles((x, y) -> {
             Tile tile = world.tile(x, y);
@@ -166,7 +168,7 @@ public class Renderer implements ApplicationListener{
 
         //shadows
         effects.begin(Color.clear);
-        Drawf.sort(false); //shadows are unsorted
+        Draw.sort(false); //shadows are unsorted
 
         drawTiles((x, y) -> {
             Tile tile = world.tile(x, y);
@@ -186,7 +188,7 @@ public class Renderer implements ApplicationListener{
         Draw.rect(effects);
         Draw.color();
 
-        Drawf.sort(true);
+        Draw.sort(true);
 
         drawTiles((x, y) -> {
             Tile tile = world.tile(x, y);
@@ -207,7 +209,7 @@ public class Renderer implements ApplicationListener{
             Draw.reset();
         }
 
-        Drawf.sort(false);
+        Draw.sort(false);
 
         drawWeather();
 
