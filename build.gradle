@@ -1,4 +1,17 @@
 buildscript{
+    ext{
+        getLatest = { String repo ->
+            try{
+                return "git ls-remote https://github.com/${repo}.git".execute().text.split("\t")[0]
+            }catch(e){
+                e.printStackTrace()
+                return "-SNAPSHOT"
+            }
+        }
+
+        arcHash = getLatest("Anuken/Arc")
+    }
+
     repositories{
         mavenLocal()
         mavenCentral()
@@ -11,9 +24,9 @@ buildscript{
 
     dependencies{
         classpath 'com.android.tools.build:gradle:3.3.1'
-        classpath 'com.github.Anuken:teavm-gradle-plugin:e28fd8487c68d02b557c61fe05e5aeb592429f8a'
-        classpath "com.github.Anuken.Arc:packer:28647bc1d10bbf6ec311f4d278c3fbde03e8373f"
-        classpath "com.github.Anuken.Arc:arc-core:28647bc1d10bbf6ec311f4d278c3fbde03e8373f"
+        classpath "com.github.Anuken:teavm-gradle-plugin:${getLatest("Anuken/teavm-gradle-plugin")}"
+        classpath "com.github.Anuken.Arc:packer:$arcHash"
+        classpath "com.github.Anuken.Arc:arc-core:$arcHash"
     }
 }
 

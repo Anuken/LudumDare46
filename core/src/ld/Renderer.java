@@ -216,7 +216,6 @@ public class Renderer implements ApplicationListener{
         Draw.color();
 
         lights.begin(Color.clear);
-        qbatch.blend(Blending.additive);
         qbatch.flush();
         lights.end();
 

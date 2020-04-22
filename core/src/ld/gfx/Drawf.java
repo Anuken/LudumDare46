@@ -21,16 +21,9 @@ public class Drawf{
 
     public static void light(float x, float y, float width, float height, Color color, float alpha){
         Core.batch = Game.qbatch;
+        Draw.blend(Blending.additive);
         Draw.color(color, alpha);
         Draw.rect("light", x, y, width, height);
-        Draw.color();
-        Core.batch = Game.sbatch;
-    }
-
-    public static void light(Color color, float alpha, Runnable run){
-        Core.batch = Game.qbatch;
-        Draw.color(color, alpha);
-        run.run();
         Draw.color();
         Core.batch = Game.sbatch;
     }
