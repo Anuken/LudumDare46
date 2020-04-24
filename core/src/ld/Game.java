@@ -46,6 +46,8 @@ public class Game extends ApplicationCore{
         Core.batch = sbatch = new SortedSpriteBatch();
         Core.atlas = new TextureAtlas("sprites/sprites.atlas");
 
+        Draw.sortAscending(false);
+
         font = new BitmapFont(Core.files.internal("prose.fnt"));
         font.getData().markupEnabled = true;
 

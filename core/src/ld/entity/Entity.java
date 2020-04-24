@@ -66,7 +66,7 @@ public class Entity implements Position, QuadTreeObject{
     }
 
     public void move(float x, float y){
-        Collisions.move(this, x, y);
+        Collisions.move(this, x * Time.delta(), y * Time.delta());
     }
 
     public void hitbox(Rect rect){
